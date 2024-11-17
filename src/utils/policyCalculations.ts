@@ -2,6 +2,7 @@ import { PolicyOption } from '../types';
 import { policyOptions } from '../data/policyDefinitions';
 
 interface PolicyEffects {
+  contactReduction: number;
   transmissionReduction: number;
   dailyCosts: number;
 }
@@ -10,6 +11,7 @@ export function calculatePolicyEffects(
   activePolicies: Set<string>,
   state: { population: number }
 ): PolicyEffects {
+  let contactReduction = 0;
   let transmissionReduction = 0;
   let dailyCosts = 0;
 
@@ -17,15 +19,18 @@ export function calculatePolicyEffects(
   activePolicies.forEach(policyId => {
     const policy = policyOptions.find(p => p.id === policyId);
     if (policy && !policy.oneTime) {
-      transmissionReduction += policy.transmissionReduction;
+      contactReduction += policy.contactReduction || 0;
+      transmissionReduction += policy.transmissionReduction || 0;
       dailyCosts += policy.dailyCostPerPerson * state.population;
     }
   });
 
-  // Cap transmission reduction at 95% to prevent complete elimination
+  // Cap reductions at 95% to prevent complete elimination
+  contactReduction = Math.min(contactReduction, 0.95);
   transmissionReduction = Math.min(transmissionReduction, 0.95);
 
   return {
+    contactReduction,
     transmissionReduction,
     dailyCosts
   };

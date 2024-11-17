@@ -8,6 +8,13 @@ interface ConfigPanelProps {
   disabled: boolean;
 }
 
+interface LogSliderConfig {
+  minValue: number;
+  maxValue: number;
+  minSlider?: number;
+  maxSlider?: number;
+}
+
 const formatNumber = (num: number) => {
   if (num >= 1e9) return `${(num / 1e9).toFixed(1)}B`;
   if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
@@ -16,43 +23,93 @@ const formatNumber = (num: number) => {
 };
 
 const formatMoney = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0
-  }).format(amount);
+  if (amount >= 1e12) return `$${(amount / 1e12).toFixed(1)} trillion`;
+  if (amount >= 1e9) return `$${(amount / 1e9).toFixed(1)} billion`;
+  if (amount >= 1e6) return `$${(amount / 1e6).toFixed(1)} million`;
+  if (amount >= 1e3) return `$${(amount / 1e3).toFixed(1)}K`;
+  return `$${amount.toFixed(0)}`;
 };
 
-// Convert linear slider value (0-100) to logarithmic population
-const sliderToPopulation = (value: number) => {
-  const minLog = Math.log10(1e6); // 1 million
-  const maxLog = Math.log10(1e10); // 10 billion
-  const scale = (maxLog - minLog) / 100;
-  return Math.round(Math.pow(10, minLog + (value * scale)));
+// Create a generic function for logarithmic slider conversions
+const createLogSliderHandlers = (config: LogSliderConfig) => {
+  const {
+    minValue,
+    maxValue,
+    minSlider = 0,
+    maxSlider = 100
+  } = config;
+
+  const valueToSlider = (value: number) => {
+    if (value <= minValue) return minSlider;
+    if (value >= maxValue) return maxSlider;
+    const minLog = Math.log10(minValue);
+    const maxLog = Math.log10(maxValue);
+    const scale = (maxLog - minLog) / (maxSlider - minSlider);
+    return Math.round((Math.log10(value) - minLog) / scale) + minSlider;
+  };
+
+  const sliderToValue = (slider: number) => {
+    if (slider <= minSlider) return minValue;
+    if (slider >= maxSlider) return maxValue;
+    const minLog = Math.log10(minValue);
+    const maxLog = Math.log10(maxValue);
+    const scale = (maxLog - minLog) / (maxSlider - minSlider);
+    return Math.pow(10, minLog + ((slider - minSlider) * scale));
+  };
+
+  return { valueToSlider, sliderToValue };
 };
 
-// Convert population to linear slider value
-const populationToSlider = (population: number) => {
-  const minLog = Math.log10(1e6);
-  const maxLog = Math.log10(1e10);
-  const scale = (maxLog - minLog) / 100;
-  return Math.round((Math.log10(population) - minLog) / scale);
-};
+// Create specific handlers for each type of slider
+const populationHandlers = createLogSliderHandlers({
+  minValue: 1e3,  // 1 million
+  maxValue: 1e10, // 10 billion
+});
+
+const probabilityHandlers = createLogSliderHandlers({
+  minValue: 0.001, // 0.1%
+  maxValue: 1,     // 100%
+});
+
+const mortalityHandlers = createLogSliderHandlers({
+  minValue: 0.0001, // 0.01%
+  maxValue: 1,      // 100%
+});
+
+// Replace the old conversion functions with the new handlers
+const sliderToPopulation = populationHandlers.sliderToValue;
+const populationToSlider = populationHandlers.valueToSlider;
+const sliderToProbability = probabilityHandlers.sliderToValue;
+const probabilityToSlider = probabilityHandlers.valueToSlider;
+const sliderToMortality = mortalityHandlers.sliderToValue;
+const mortalityToSlider = mortalityHandlers.valueToSlider;
 
 export default function ConfigPanel({ config, onConfigChange, disabled }: ConfigPanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
 
-  const handleChange = (key: keyof SimulationConfig, value: string) => {
-    if (key === 'population') {
-      // Convert linear slider value to logarithmic population
+  const handleChange = (field: keyof SimulationConfig, value: string) => {
+    const numValue = Number(value);
+    if (isNaN(numValue)) return;
+
+    if (field === 'population') {
       onConfigChange({
         ...config,
-        population: sliderToPopulation(parseInt(value)),
+        population: sliderToPopulation(numValue)
+      });
+    } else if (field === 'transmissionProbability') {
+      onConfigChange({
+        ...config,
+        transmissionProbability: sliderToProbability(numValue)
+      });
+    } else if (field === 'mortalityRate') {
+      onConfigChange({
+        ...config,
+        mortalityRate: sliderToMortality(numValue)
       });
     } else {
       onConfigChange({
         ...config,
-        [key]: parseFloat(value),
+        [field]: numValue,
       });
     }
   };
@@ -75,86 +132,10 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
       </button>
       
       {isExpanded && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Initial Population
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              value={populationToSlider(config.population)}
-              onChange={(e) => handleChange('population', e.target.value)}
-              disabled={disabled}
-              className="w-full mt-1"
-            />
-            <div className="text-sm text-gray-600 mt-1">
-              Current: {formatNumber(config.population)}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Beta (infections per person per day)
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={config.beta}
-              onChange={(e) => handleChange('beta', e.target.value)}
-              disabled={disabled}
-              className="w-full mt-1"
-            />
-            <div className="text-sm text-gray-600 mt-1">
-              Current: {config.beta.toFixed(2)}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Mortality Rate (%)
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.001"
-              value={config.mortalityRate}
-              onChange={(e) => handleChange('mortalityRate', e.target.value)}
-              disabled={disabled}
-              className="w-full mt-1"
-            />
-            <div className="text-sm text-gray-600 mt-1">
-              Current: {(config.mortalityRate * 100).toFixed(1)}%
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Recovery Period (Days)
-            </label>
-            <input
-              type="range"
-              min="1"
-              max="30"
-              step="1"
-              value={config.recoveryDays}
-              onChange={(e) => handleChange('recoveryDays', e.target.value)}
-              disabled={disabled}
-              className="w-full mt-1"
-            />
-            <div className="text-sm text-gray-600 mt-1">
-              Current: {config.recoveryDays} days
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Simulation Speed (Days/Second)
+              Simulation speed
             </label>
             <input
               type="range"
@@ -167,13 +148,108 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
               className="w-full mt-1"
             />
             <div className="text-sm text-gray-600 mt-1">
-              Current: {config.daysPerSecond} days/second
+              {config.daysPerSecond} days/second
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Population
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value={populationToSlider(config.population)}
+              onChange={(e) => handleChange('population', e.target.value)}
+              disabled={disabled}
+              className="w-full mt-1"
+            />
+            <div className="text-sm text-gray-600 mt-1">
+              {formatNumber(config.population)}
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Economic Cost per Death
+              Daily Contacts (k)
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="50"
+              step="1"
+              value={config.contactsPerDay}
+              onChange={(e) => handleChange('contactsPerDay', e.target.value)}
+              disabled={disabled}
+              className="w-full mt-1"
+            />
+            <div className="text-sm text-gray-600 mt-1">
+              k = {config.contactsPerDay} contacts per day
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Transmission probability per contact
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value={probabilityToSlider(config.transmissionProbability)}
+              onChange={(e) => handleChange('transmissionProbability', e.target.value)}
+              disabled={disabled}
+              className="w-full mt-1"
+            />
+            <div className="text-sm text-gray-600 mt-1">
+              π = {(config.transmissionProbability * 100).toFixed(1)}% probability of transmission per contact
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Infectious period
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="30"
+              step="1"
+              value={config.recoveryDays}
+              onChange={(e) => handleChange('recoveryDays', e.target.value)}
+              disabled={disabled}
+              className="w-full mt-1"
+            />
+            <div className="text-sm text-gray-600 mt-1">
+              {config.recoveryDays} days (γ = {(1/config.recoveryDays).toFixed(3)})
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Infection fatality rate (IFR)
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value={mortalityToSlider(config.mortalityRate)}
+              onChange={(e) => handleChange('mortalityRate', e.target.value)}
+              disabled={disabled}
+              className="w-full mt-1"
+            />
+            <div className="text-sm text-gray-600 mt-1">
+              {(config.mortalityRate * 100).toFixed(2)}%
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Economic cost per Death
             </label>
             <input
               type="range"
@@ -190,24 +266,7 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
             </div>
           </div>
 
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Incubation Period (Days)
-            </label>
-            <input
-              type="range"
-              min="1"
-              max="30"
-              step="1"
-              value={config.incubationDays}
-              onChange={(e) => handleChange('incubationDays', e.target.value)}
-              disabled={disabled}
-              className="w-full mt-1"
-            />
-            <div className="text-sm text-gray-600 mt-1">
-              Current: {config.incubationDays} days
-            </div>
-          </div> */}
+          
         </div>
       )}
     </div>

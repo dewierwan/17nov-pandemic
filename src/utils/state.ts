@@ -2,8 +2,10 @@ import { SimulationState, SimulationConfig } from '../types';
 
 export function getInitialState(config: SimulationConfig): SimulationState {
   const initialInfected = 100;
-  const r0 = config.beta * config.recoveryDays;
-  const herdImmunityThreshold = 1 - (1 / r0);
+  const gamma = 1 / config.recoveryDays;
+  const beta = config.contactsPerDay * config.transmissionProbability;
+  const r0 = beta / gamma;
+  const herdImmunityThreshold = r0 > 1 ? Math.max(0, 1 - (1 / r0)) : 0;
   
   return {
     day: 0,
@@ -13,7 +15,8 @@ export function getInitialState(config: SimulationConfig): SimulationState {
     recovered: 0,
     deceased: 0,
     totalCases: initialInfected,
-    beta: config.beta,
+    beta,
+    gamma,
     recoveryDays: config.recoveryDays,
     r0: r0,
     re: r0,
@@ -30,7 +33,7 @@ export function getInitialState(config: SimulationConfig): SimulationState {
       recovered: 0,
       deceased: 0,
       totalCases: initialInfected,
-      r0: config.beta,
+      r0: r0,
       re: r0,
       economicCost: 0
     }],
@@ -39,5 +42,7 @@ export function getInitialState(config: SimulationConfig): SimulationState {
     isVaccinationStarted: false,
     vaccinationStartDay: undefined,
     policyCosts: [],
+    effectiveContacts: config.contactsPerDay,
+    effectiveTransmissionRate: config.transmissionProbability,
   };
 }

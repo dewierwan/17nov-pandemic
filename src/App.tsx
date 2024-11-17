@@ -4,6 +4,7 @@ import SimulationControls from './components/SimulationControls';
 import ConfigPanel from './components/ConfigPanel';
 import TimeSeriesGraph from './components/TimeSeriesGraph';
 import PolicySelector from './components/PolicySelector';
+import DailyStatsGraph from './components/DailyStatsGraph';
 import { useSimulation } from './hooks/useSimulation';
 
 function App() {
@@ -48,6 +49,8 @@ function App() {
         <Dashboard state={state} />
         
         <TimeSeriesGraph data={state.timeSeriesData} />
+        
+        <DailyStatsGraph data={state.timeSeriesData} />
         
         <PolicySelector 
           onSelectPolicy={implementPolicy}

@@ -7,6 +7,7 @@ export interface SimulationState {
   deceased: number;
   totalCases: number;
   beta: number;
+  gamma: number;
   recoveryDays: number;
   r0: number;
   re: number;
@@ -22,6 +23,8 @@ export interface SimulationState {
   vaccinationStartDay?: number;
   dailyVaccinated: number;
   policyCosts: PolicyCost[];
+  effectiveContacts: number;
+  effectiveTransmissionRate: number;
 }
 
 export interface TimeSeriesDataPoint {
@@ -38,11 +41,13 @@ export interface TimeSeriesDataPoint {
 
 export interface SimulationConfig {
   population: number;
-  beta: number;
   mortalityRate: number;
   recoveryDays: number;
   daysPerSecond: number;
   economicCostPerDeath: number;
+  gamma?: number;
+  contactsPerDay: number;
+  transmissionProbability: number;
 }
 
 export interface PolicyOption {
@@ -50,7 +55,8 @@ export interface PolicyOption {
   name: string;
   description: string;
   economicImpact: number;
-  transmissionReduction: number;
+  contactReduction?: number;
+  transmissionReduction?: number;
   socialCost: number;
   implementationDelay: number;
   dailyCostPerPerson: number;

@@ -21,19 +21,13 @@ interface DiseaseParameters {
   gamma: number;
 }
 
-function calculateDiseaseParameters(config: SimulationConfig): DiseaseParameters {
-  const gamma = 1 / config.recoveryDays;
-  return { beta: config.beta, gamma };
-}
-
 function calculateEffectiveR(
   beta: number,
   gamma: number,
   susceptible: number,
   population: number
 ): number {
-  // R(t) = (beta * gamma) / (S(t) * N)
-  return (beta * gamma ) / (susceptible * population);
+  return (beta * susceptible) / (population * gamma);
 }
 
 function calculateTransitions(
@@ -60,7 +54,7 @@ function calculateTransitions(
   const extraExit = Math.random() < fractionalExits ? 1 : 0;
   const totalExits = Math.min(wholeExits + extraExit, state.infected);
 
-  // Calculate deaths and recoveries using passed mortality rate
+  // Split exits between deaths and recoveries based on mortality rate
   const newDeceased = Math.floor(totalExits * mortalityRate);
   const newRecovered = totalExits - newDeceased;
 
@@ -90,30 +84,40 @@ function calculateNewState(
     totalCases: state.totalCases + transitions.newInfected,
     re: currentRe,
   };
-}export function calculateDisease(
-  state: SimulationState, 
+}
+
+export function calculateDisease(
+  state: SimulationState,
   config: SimulationConfig,
   activePolicies: Set<string>
-): DiseaseState {
-  const { beta, gamma } = calculateDiseaseParameters(config);
+) {
+  const { contactReduction, transmissionReduction } = calculatePolicyEffects(activePolicies, state);
   
-  const { transmissionReduction } = calculatePolicyEffects(activePolicies, state);
+  // Calculate effective contacts and transmission probability
+  const effectiveContacts = config.contactsPerDay * (1 - contactReduction);
+  const effectiveTransmissionRate = config.transmissionProbability * (1 - transmissionReduction);
   
-  const adjustedBeta = beta * Math.max(0, 1 - transmissionReduction);
+  // Calculate effective beta using both reductions
+  const effectiveBeta = effectiveContacts * effectiveTransmissionRate;
   
   const currentRe = calculateEffectiveR(
-    adjustedBeta,
-    gamma,
+    effectiveBeta,
+    state.gamma,
     state.susceptible,
     state.population
   );
   
   const transitions = calculateTransitions(
     state, 
-    { beta: adjustedBeta, gamma }, 
+    { beta: effectiveBeta, gamma: state.gamma }, 
     state.population,
     config.mortalityRate
   );
-  return calculateNewState(state, transitions, currentRe);
+  
+  return {
+    ...calculateNewState(state, transitions, currentRe),
+    effectiveContacts,
+    effectiveTransmissionRate
+  };
 }
 

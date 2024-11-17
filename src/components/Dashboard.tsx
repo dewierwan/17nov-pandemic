@@ -6,14 +6,19 @@ interface DashboardProps {
   state: SimulationState;
 }
 
-const formatNumber = (num: number) => new Intl.NumberFormat().format(Math.round(num));
+const formatNumber = (num: number) => {
+  if (num >= 1e9) return `${(num / 1e9).toFixed(1)}B`;
+  if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
+  if (num >= 1e3) return `${(num / 1e3).toFixed(1)}K`;
+  return num.toString();
+};
 
 const formatMoney = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0
-  }).format(amount);
+  if (amount >= 1e12) return `$${(amount / 1e12).toFixed(1)} trillion`;
+  if (amount >= 1e9) return `$${(amount / 1e9).toFixed(1)} billion`;
+  if (amount >= 1e6) return `$${(amount / 1e6).toFixed(1)} million`;
+  if (amount >= 1e3) return `$${(amount / 1e3).toFixed(1)}K`;
+  return `$${amount.toFixed(0)}`;
 };
 
 export default function Dashboard({ state }: DashboardProps) {
@@ -46,6 +51,55 @@ export default function Dashboard({ state }: DashboardProps) {
       {isStatsExpanded && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+          <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center space-x-2 text-purple-600">
+                <Activity className="w-5 h-5" />
+                <h3 className="font-semibold">Basic Parameters</h3>
+              </div>
+              <div className="space-y-1 mt-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">R₀:</span>
+                  <span className="font-bold">
+                    {(state.beta / state.gamma).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Herd Immunity:</span>
+                  <span className="font-bold">
+                    {(state.herdImmunityThreshold * 100).toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center space-x-2 text-purple-600">
+                <Activity className="w-5 h-5" />
+                <h3 className="font-semibold">Effective Reproduction (Rₑ)</h3>
+              </div>
+              <p className="text-2xl font-bold mt-2">{state.re.toFixed(2)}</p>
+              <p className="text-sm text-gray-500">Current transmission rate</p>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center space-x-2 text-purple-600">
+                <Users className="w-5 h-5" />
+                <h3 className="font-semibold">Daily Contact Rate (kₑ)</h3>
+              </div>
+              <p className="text-2xl font-bold mt-2">{state.effectiveContacts.toFixed(1)}</p>
+              <p className="text-sm text-gray-500">contacts/day</p>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center space-x-2 text-purple-600">
+                <Activity className="w-5 h-5" />
+                <h3 className="font-semibold">Transmission Probability (πₑ)</h3>
+              </div>
+              <p className="text-2xl font-bold mt-2">{(state.effectiveTransmissionRate * 100).toFixed(1)}%</p>
+              <p className="text-sm text-gray-500">per contact</p>
+            </div>
+
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center space-x-2 text-purple-600">
                 <Shield className="w-5 h-5" />
@@ -109,30 +163,9 @@ export default function Dashboard({ state }: DashboardProps) {
               <p className="text-sm text-gray-500">Total economic damage</p>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center space-x-2 text-purple-600">
-                <Activity className="w-5 h-5" />
-                <h3 className="font-semibold">Reproduction Numbers</h3>
-              </div>
-              <div className="space-y-1 mt-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">R₀:</span>
-                  <span className="font-bold">
-                    {(state.beta * state.recoveryDays).toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Rₑ:</span>
-                  <span className="font-bold">{state.re.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Herd Immunity:</span>
-                  <span className="font-bold">
-                    {((1 - 1/(state.beta * state.recoveryDays)) * 100).toFixed(1)}%
-                  </span>
-                </div>
-              </div>
-            </div>
+            
+
+            
           </div>
         </div>
       )}

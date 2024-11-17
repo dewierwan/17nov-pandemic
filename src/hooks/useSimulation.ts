@@ -7,12 +7,14 @@ import { policyOptions } from '../data/policyDefinitions';
 
 export function useSimulation() {
   const [config, setConfig] = useState<SimulationConfig>({
-    population: 10_000_000,
-    beta: 0.57,
+    population: 100_000_000,
     mortalityRate: 0.05,
     recoveryDays: 14,
-    daysPerSecond: 29,
-    economicCostPerDeath: 1_000_000
+    daysPerSecond: 20,
+    economicCostPerDeath: 1_000_000,
+    gamma: 1/14,
+    contactsPerDay: 10,
+    transmissionProbability: 0.015
   });
 
   const [state, setState] = useState<SimulationState>(getInitialState(config));
@@ -29,9 +31,14 @@ export function useSimulation() {
   }, []);
 
   const updateConfig = useCallback((newConfig: SimulationConfig) => {
-    setConfig(newConfig);
+    const updatedConfig = {
+      ...newConfig,
+      gamma: 1 / newConfig.recoveryDays
+    };
+    
+    setConfig(updatedConfig);
     setState(current => ({
-      ...getInitialState(newConfig),
+      ...getInitialState(updatedConfig),
       isRunning: current.isRunning
     }));
   }, []);

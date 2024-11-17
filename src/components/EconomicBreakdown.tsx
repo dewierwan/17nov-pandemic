@@ -8,9 +8,10 @@ interface EconomicBreakdownProps {
 }
 
 const formatMoney = (amount: number) => {
-  if (amount >= 1e12) return `$${(amount / 1e12).toFixed(1)}T`;
-  if (amount >= 1e9) return `$${(amount / 1e9).toFixed(1)}B`;
-  if (amount >= 1e6) return `$${(amount / 1e6).toFixed(1)}M`;
+  if (amount >= 1e12) return `$${(amount / 1e12).toFixed(1)} trillion`;
+  if (amount >= 1e9) return `$${(amount / 1e9).toFixed(1)} billion`;
+  if (amount >= 1e6) return `$${(amount / 1e6).toFixed(1)} million`;
+  if (amount >= 1e3) return `$${(amount / 1e3).toFixed(1)}K`;
   return `$${amount.toFixed(0)}`;
 };
 
