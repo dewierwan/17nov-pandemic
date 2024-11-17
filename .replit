@@ -1,0 +1,29 @@
+run = "npm run dev"
+entrypoint = "src/App.tsx"
+
+hidden = [".config", "tsconfig.node.json", "tsconfig.app.json", "node_modules"]
+
+[nix]
+channel = "stable-23_11"
+
+[env]
+XDG_CONFIG_HOME = "/home/runner/.config"
+PATH = "/home/runner/$REPL_SLUG/node_modules/.bin:$PATH"
+
+[packager]
+language = "nodejs"
+
+[packager.features]
+packageSearch = true
+guessImports = true
+
+[languages]
+  [languages.typescript]
+  pattern = "**/{*.ts,*.js,*.tsx,*.jsx}"
+    [languages.typescript.languageServer]
+    start = "typescript-language-server --stdio"
+
+[deployment]
+run = ["sh", "-c", "npm run dev"]
+deploymentTarget = "cloudrun"
+ignorePorts = false 
