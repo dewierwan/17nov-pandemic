@@ -4,7 +4,7 @@ export function calculateVaccination(state: SimulationState) {
   // If vaccination hasn't started or waiting period hasn't elapsed, return current state
   if (!state.isVaccinationStarted || 
       !state.vaccinationStartDay || 
-      state.day < state.vaccinationStartDay) {
+      state.day < state.vaccinationStartDay + 100) {
     return {
       vaccinated: state.vaccinated,
       peopleVaccinated: state.peopleVaccinated,

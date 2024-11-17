@@ -19,7 +19,7 @@ export default function TimeSeriesGraph({ data }: TimeSeriesGraphProps) {
     { key: 'infected', name: 'Active Cases', color: '#3B82F6' },
     { key: 'recovered', name: 'Recovered', color: '#10B981' },
     { key: 'deceased', name: 'Deceased', color: '#DC2626' },
-    { key: 'gdpImpact', name: 'Economic Cost ($)', color: '#F59E0B' }
+    { key: 'economicCost', name: 'Economic Cost ($)', color: '#F59E0B' }
   ], []);
 
   const [visibleLines, setVisibleLines] = useState<Set<string>>(
@@ -38,7 +38,7 @@ export default function TimeSeriesGraph({ data }: TimeSeriesGraphProps) {
   }, []);
   
   const formatYAxis = useCallback((value: number, dataKey?: string) => {
-    if (dataKey === 'gdpImpact') {
+    if (dataKey === 'economicCost') {
       return formatMoney(value);
     }
     if (value >= 1_000_000_000) {
@@ -119,7 +119,7 @@ export default function TimeSeriesGraph({ data }: TimeSeriesGraphProps) {
             <YAxis
               yAxisId="right"
               orientation="right"
-              tickFormatter={(value) => formatYAxis(value, 'gdpImpact')}
+              tickFormatter={(value) => formatYAxis(value, 'economicCost')}
               label={{
                 value: 'Economic Cost',
                 angle: 90,
@@ -137,7 +137,7 @@ export default function TimeSeriesGraph({ data }: TimeSeriesGraphProps) {
                   stroke={line.color}
                   name={line.name}
                   dot={false}
-                  yAxisId={line.key === 'gdpImpact' ? 'right' : 'left'}
+                  yAxisId={line.key === 'economicCost' ? 'right' : 'left'}
                   isAnimationActive={false}
                 />
               )

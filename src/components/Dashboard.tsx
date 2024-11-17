@@ -104,7 +104,7 @@ export default function Dashboard({ state }: DashboardProps) {
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center space-x-2 text-emerald-600">
                 <DollarSign className="w-5 h-5" />
-                <h3 className="font-semibold">Economic Impact</h3>
+                <h3 className="font-semibold">Economic Cost</h3>
               </div>
               <p className="text-2xl font-bold mt-2">{formatMoney(state.totalCosts)}</p>
               <p className="text-sm text-gray-500">Total economic damage</p>
