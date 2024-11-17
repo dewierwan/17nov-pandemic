@@ -41,7 +41,7 @@ Effective immediately.`,
     economicImpact: 0,
     transmissionReduction: 0.3,
     socialCost: 0,
-    implementationDelay: 1,
+    implementationDelay: 3,
     dailyCostPerPerson: 3,
     oneTime: false
   }

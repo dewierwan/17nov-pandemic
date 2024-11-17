@@ -48,9 +48,10 @@ function App() {
         
         <Dashboard state={state} />
         
-        <TimeSeriesGraph data={state.timeSeriesData} />
-        
-        <DailyStatsGraph data={state.timeSeriesData} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TimeSeriesGraph data={state.timeSeriesData} />
+          <DailyStatsGraph data={state.timeSeriesData} />
+        </div>
         
         <PolicySelector 
           onSelectPolicy={implementPolicy}

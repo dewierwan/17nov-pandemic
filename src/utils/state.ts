@@ -1,7 +1,7 @@
 import { SimulationState, SimulationConfig } from '../types';
 
 export function getInitialState(config: SimulationConfig): SimulationState {
-  const initialInfected = 100;
+  const initialInfected = 1;
   const gamma = 1 / config.recoveryDays;
   const beta = config.contactsPerDay * config.transmissionProbability;
   const r0 = beta / gamma;
