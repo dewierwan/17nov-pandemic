@@ -6,6 +6,8 @@ export interface SimulationState {
   recovered: number;
   deceased: number;
   totalCases: number;
+  beta: number;
+  recoveryDays: number;
   r0: number;
   re: number;
   herdImmunityThreshold: number;
@@ -13,6 +15,13 @@ export interface SimulationState {
   isRunning: boolean;
   timeSeriesData: TimeSeriesDataPoint[];
   totalCosts: number;
+  deathCosts: number;
+  vaccineCosts: number;
+  totalVaccinated: number;
+  isVaccinationStarted: boolean;
+  vaccinationStartDay?: number;
+  dailyVaccinated: number;
+  policyCosts: PolicyCost[];
 }
 
 export interface TimeSeriesDataPoint {
@@ -29,9 +38,31 @@ export interface TimeSeriesDataPoint {
 
 export interface SimulationConfig {
   population: number;
-  initialR0: number;
+  beta: number;
   mortalityRate: number;
   recoveryDays: number;
   daysPerSecond: number;
   economicCostPerDeath: number;
+}
+
+export interface PolicyOption {
+  id: string;
+  name: string;
+  description: string;
+  economicImpact: number;
+  transmissionReduction: number;
+  socialCost: number;
+  implementationDelay: number;
+  dailyCostPerPerson: number;
+  oneTime?: boolean;
+}
+
+export interface PolicyCost {
+  id: string;
+  totalCost: number;
+}
+
+export interface DiseaseParameters {
+  beta: number;
+  gamma: number;
 }

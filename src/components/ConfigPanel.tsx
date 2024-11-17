@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Settings, ChevronDown, ChevronUp } from 'lucide-react';
 import { SimulationConfig } from '../types';
 
@@ -97,20 +97,20 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Basic Reproduction Number (R₀)
+              Beta (infections per person per day)
             </label>
             <input
               type="range"
-              min="1"
-              max="10"
-              step="0.1"
-              value={config.initialR0}
-              onChange={(e) => handleChange('initialR0', e.target.value)}
+              min="0"
+              max="1"
+              step="0.01"
+              value={config.beta}
+              onChange={(e) => handleChange('beta', e.target.value)}
               disabled={disabled}
               className="w-full mt-1"
             />
             <div className="text-sm text-gray-600 mt-1">
-              Current: {config.initialR0.toFixed(1)}
+              Current: {config.beta.toFixed(2)}
             </div>
           </div>
 
@@ -130,25 +130,6 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
             />
             <div className="text-sm text-gray-600 mt-1">
               Current: {(config.mortalityRate * 100).toFixed(1)}%
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Incubation Period (Days)
-            </label>
-            <input
-              type="range"
-              min="1"
-              max="14"
-              step="1"
-              value={config.incubationDays}
-              onChange={(e) => handleChange('incubationDays', e.target.value)}
-              disabled={disabled}
-              className="w-full mt-1"
-            />
-            <div className="text-sm text-gray-600 mt-1">
-              Current: {config.incubationDays} days
             </div>
           </div>
 
@@ -208,6 +189,25 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
               Current: {formatMoney(config.economicCostPerDeath)}
             </div>
           </div>
+
+          {/* <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Incubation Period (Days)
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="30"
+              step="1"
+              value={config.incubationDays}
+              onChange={(e) => handleChange('incubationDays', e.target.value)}
+              disabled={disabled}
+              className="w-full mt-1"
+            />
+            <div className="text-sm text-gray-600 mt-1">
+              Current: {config.incubationDays} days
+            </div>
+          </div> */}
         </div>
       )}
     </div>

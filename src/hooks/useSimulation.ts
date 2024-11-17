@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { SimulationState, SimulationConfig } from '../types';
+import { SimulationState, SimulationConfig, PolicyOption } from '../types';
 import { calculateDisease } from '../utils/disease';
 import { calculateEconomicImpact } from '../utils/economics';
 import { getInitialState } from '../utils/state';
+import { policyOptions } from '../data/policyDefinitions';
 
 export function useSimulation() {
   const [config, setConfig] = useState<SimulationConfig>({
     population: 10_000_000,
-    initialR0: 8,
+    beta: 0.57,
     mortalityRate: 0.05,
     recoveryDays: 14,
     daysPerSecond: 29,
@@ -15,9 +16,12 @@ export function useSimulation() {
   });
 
   const [state, setState] = useState<SimulationState>(getInitialState(config));
+  const [usedPolicies, setUsedPolicies] = useState<Set<string>>(new Set());
+  const [activePolicies, setActivePolicies] = useState<Set<string>>(new Set());
 
   const reset = useCallback(() => {
     setState(getInitialState(config));
+    setUsedPolicies(new Set());
   }, [config]);
 
   const toggleSimulation = useCallback(() => {
@@ -32,23 +36,85 @@ export function useSimulation() {
     }));
   }, []);
 
+  const implementPolicy = useCallback((policy: PolicyOption) => {
+    if (policy.oneTime) {
+      // Handle one-time policies
+      if (policy.id === 'vaccination') {
+        setState(currentState => ({
+          ...currentState,
+          isVaccinationStarted: true,
+          vaccinationStartDay: currentState.day,
+          totalCosts: currentState.totalCosts + 10_000_000_000
+        }));
+        setUsedPolicies(current => new Set(current).add(policy.id));
+      }
+    } else {
+      // Handle toggleable policies
+      setActivePolicies(current => {
+        const newActivePolicies = new Set(current);
+        if (current.has(policy.id)) {
+          newActivePolicies.delete(policy.id);
+        } else {
+          newActivePolicies.add(policy.id);
+        }
+        return newActivePolicies;
+      });
+      setUsedPolicies(current => new Set(current).add(policy.id));
+    }
+  }, []);
+
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
 
     if (state.isRunning) {
       interval = setInterval(() => {
         setState(currentState => {
-          // Calculate disease progression
-          const diseaseUpdates = calculateDisease(currentState, config);
+          // Calculate disease progression with active policies
+          const diseaseUpdates = calculateDisease(currentState, config, activePolicies);
           
-          // Calculate economic impact
-          const economicUpdates = calculateEconomicImpact(currentState, config, diseaseUpdates);
+          // Calculate economic impact including policy costs
+          const economicUpdates = calculateEconomicImpact(
+            currentState, 
+            config, 
+            diseaseUpdates,
+            activePolicies
+          );
           
-          // Combine all updates
-          const newState = {
+          // Create intermediate state with disease updates
+          const intermediateState = {
             ...currentState,
             ...diseaseUpdates,
             ...economicUpdates,
+          };
+
+          // Calculate vaccination updates based on post-disease state
+          const vaccinationUpdates: Partial<SimulationState> = {};
+          if (currentState.isVaccinationStarted && 
+              currentState.vaccinationStartDay !== undefined) {
+            
+            const vaccinationPolicy = policyOptions.find(p => p.id === 'vaccination');
+            const delayPeriod = vaccinationPolicy?.implementationDelay ?? 0;
+            
+            if (currentState.day > currentState.vaccinationStartDay + delayPeriod) {
+              // Calculate daily vaccination capacity (1% of initial population)
+              const dailyVaccinationCapacity = Math.floor(currentState.population * 0.01);
+              
+              // Calculate new vaccinations for today
+              const dailyVaccinated = Math.min(
+                dailyVaccinationCapacity,
+                intermediateState.susceptible
+              );
+              
+              vaccinationUpdates.dailyVaccinated = dailyVaccinated;
+              vaccinationUpdates.totalVaccinated = (intermediateState.totalVaccinated || 0) + dailyVaccinated;
+              vaccinationUpdates.susceptible = intermediateState.susceptible - dailyVaccinated;
+            }
+          }
+          
+          // Combine all updates
+          const newState = {
+            ...intermediateState,
+            ...vaccinationUpdates,
             day: currentState.day + 1,
           };
 
@@ -73,13 +139,16 @@ export function useSimulation() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [state.isRunning, config]);
+  }, [state.isRunning, config, activePolicies]);
 
   return {
     state,
     config,
     reset,
     toggleSimulation,
-    updateConfig
+    updateConfig,
+    implementPolicy,
+    usedPolicies,
+    activePolicies
   };
 }

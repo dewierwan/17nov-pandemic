@@ -6,40 +6,38 @@ export function calculateVaccination(state: SimulationState) {
       !state.vaccinationStartDay || 
       state.day < state.vaccinationStartDay + 100) {
     return {
-      vaccinated: state.vaccinated,
-      peopleVaccinated: state.peopleVaccinated,
+      totalVaccinated: state.totalVaccinated,
+      dailyVaccinated: 0,
       susceptible: state.susceptible
     };
   }
 
   // Calculate daily vaccination capacity (1% of initial population)
-  const dailyVaccineCapacity = Math.floor(state.population * 0.01);
+  const dailyVaccinationCapacity = Math.floor(state.population * 0.01);
   
   // Calculate remaining alive population that can be vaccinated
   const alivePopulation = state.population - state.deceased;
-  const remainingToVaccinate = alivePopulation - state.peopleVaccinated;
+  const remainingToVaccinate = alivePopulation - state.totalVaccinated;
 
   if (remainingToVaccinate <= 0) {
     return {
-      vaccinated: state.vaccinated,
-      peopleVaccinated: state.peopleVaccinated,
+      totalVaccinated: state.totalVaccinated,
+      dailyVaccinated: 0,
       susceptible: state.susceptible
     };
   }
 
   // Calculate new vaccinations for today
-  const newVaccinationsToday = Math.min(dailyVaccineCapacity, remainingToVaccinate);
+  const dailyVaccinated = Math.min(dailyVaccinationCapacity, remainingToVaccinate);
 
   // Calculate how many of these vaccinations will go to susceptible people
-  // The proportion of susceptible people in the alive and unvaccinated population determines
-  // what fraction of vaccines go to susceptible people
-  const unvaccinatedAlive = alivePopulation - state.peopleVaccinated;
+  const unvaccinatedAlive = alivePopulation - state.totalVaccinated;
   const susceptibleProportion = state.susceptible / unvaccinatedAlive;
-  const vaccinesForSusceptible = Math.floor(newVaccinationsToday * susceptibleProportion);
+  const vaccinesForSusceptible = Math.floor(dailyVaccinated * susceptibleProportion);
 
   return {
-    vaccinated: state.vaccinated + newVaccinationsToday,
-    peopleVaccinated: state.peopleVaccinated + newVaccinationsToday,
+    totalVaccinated: state.totalVaccinated + dailyVaccinated,
+    dailyVaccinated,
     susceptible: Math.max(0, state.susceptible - vaccinesForSusceptible)
   };
 }

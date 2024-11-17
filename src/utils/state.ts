@@ -2,7 +2,8 @@ import { SimulationState, SimulationConfig } from '../types';
 
 export function getInitialState(config: SimulationConfig): SimulationState {
   const initialInfected = 100;
-  const herdImmunityThreshold = 1 - (1 / config.initialR0);
+  const r0 = config.beta * config.recoveryDays;
+  const herdImmunityThreshold = 1 - (1 / r0);
   
   return {
     day: 0,
@@ -12,13 +13,16 @@ export function getInitialState(config: SimulationConfig): SimulationState {
     recovered: 0,
     deceased: 0,
     totalCases: initialInfected,
-    r0: config.initialR0,
-    re: config.initialR0,
+    beta: config.beta,
+    recoveryDays: config.recoveryDays,
+    r0: r0,
+    re: r0,
     herdImmunityThreshold,
     immunityLevel: 0,
     isRunning: false,
-    config,
     totalCosts: 0,
+    deathCosts: 0,
+    vaccineCosts: 0,
     timeSeriesData: [{
       day: 0,
       susceptible: config.population - initialInfected,
@@ -26,9 +30,14 @@ export function getInitialState(config: SimulationConfig): SimulationState {
       recovered: 0,
       deceased: 0,
       totalCases: initialInfected,
-      r0: config.initialR0,
-      re: config.initialR0,
+      r0: config.beta,
+      re: r0,
       economicCost: 0
-    }]
+    }],
+    totalVaccinated: 0,
+    dailyVaccinated: 0,
+    isVaccinationStarted: false,
+    vaccinationStartDay: undefined,
+    policyCosts: [],
   };
 }

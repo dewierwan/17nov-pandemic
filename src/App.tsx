@@ -1,5 +1,4 @@
-import React from 'react';
-import Bug from 'lucide-react/dist/esm/icons/bug';
+import { Bug } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import SimulationControls from './components/SimulationControls';
 import ConfigPanel from './components/ConfigPanel';
@@ -8,7 +7,16 @@ import PolicySelector from './components/PolicySelector';
 import { useSimulation } from './hooks/useSimulation';
 
 function App() {
-  const { state, config, reset, toggleSimulation, updateConfig } = useSimulation();
+  const { 
+    state, 
+    config, 
+    reset, 
+    toggleSimulation, 
+    updateConfig, 
+    implementPolicy, 
+    usedPolicies,
+    activePolicies 
+  } = useSimulation();
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -41,7 +49,11 @@ function App() {
         
         <TimeSeriesGraph data={state.timeSeriesData} />
         
-        <PolicySelector />
+        <PolicySelector 
+          onSelectPolicy={implementPolicy}
+          usedPolicies={usedPolicies}
+          activePolicies={activePolicies}
+        />
       </main>
     </div>
   );

@@ -1,7 +1,6 @@
-import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DollarSign } from 'lucide-react';
-import { SimulationState, SimulationConfig } from '../types';
+import { SimulationState, SimulationConfig, PolicyCost } from '../types';
 
 interface EconomicBreakdownProps {
   state: SimulationState;
@@ -36,7 +35,7 @@ export default function EconomicBreakdown({ state }: EconomicBreakdownProps) {
       name: 'Vaccine (Delivery)',
       cost: state.isVaccinationStarted ? state.vaccineCosts - 10_000_000_000 : 0
     },
-    ...state.policyCosts.map(cost => ({
+    ...state.policyCosts.map((cost: PolicyCost) => ({
       name: policyNames[cost.id] || cost.id,
       cost: cost.totalCost
     }))

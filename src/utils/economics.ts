@@ -1,20 +1,19 @@
 import { SimulationState, SimulationConfig } from '../types';
+import { calculatePolicyEffects } from './policyCalculations';
 
 export function calculateEconomicImpact(
   state: SimulationState, 
   config: SimulationConfig,
-  diseaseUpdates: Partial<SimulationState>
+  diseaseUpdates: Partial<SimulationState>,
+  activePolicies: Set<string>
 ) {
-  // Calculate new deaths since last update
   const newDeaths = (diseaseUpdates.deceased || 0) - state.deceased;
-  
-  // Calculate economic impact of new deaths
   const newDeathCosts = newDeaths * config.economicCostPerDeath;
+  const newVaccinationCosts = (state.dailyVaccinated || 0) * 20;
   
-  // Update total costs
-  const newTotalCosts = state.totalCosts + newDeathCosts;
-
+  const { dailyCosts: policyDailyCosts } = calculatePolicyEffects(activePolicies, state);
+  
   return {
-    totalCosts: newTotalCosts
+    totalCosts: state.totalCosts + newDeathCosts + newVaccinationCosts + policyDailyCosts
   };
 }

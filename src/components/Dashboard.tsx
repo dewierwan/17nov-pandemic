@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { SimulationState } from '../types';
-import { TrendingUp, Users, Heart, DollarSign, Activity, UserCheck, AlertTriangle, Shield, Syringe, ChevronDown, ChevronUp } from 'lucide-react';
+import { Users, Heart, DollarSign, Activity, UserCheck, AlertTriangle, Shield, Syringe, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface DashboardProps {
   state: SimulationState;
 }
 
 const formatNumber = (num: number) => new Intl.NumberFormat().format(Math.round(num));
-const formatPercent = (num: number) => (num * 100).toFixed(1);
 
 const formatMoney = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -25,7 +24,7 @@ export default function Dashboard({ state }: DashboardProps) {
   const recoveryRate = ((state.recovered / state.totalCases) * 100).toFixed(1);
   const mortalityRate = ((state.deceased / state.totalCases) * 100).toFixed(1);
   const susceptiblePercentage = ((state.susceptible / state.population) * 100).toFixed(1);
-  const vaccinatedPercentage = ((state.peopleVaccinated / state.population) * 100).toFixed(1);
+  const vaccinatedPercentage = ((state.totalVaccinated / state.population) * 100).toFixed(1);
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
@@ -97,7 +96,7 @@ export default function Dashboard({ state }: DashboardProps) {
                 <Syringe className="w-5 h-5" />
                 <h3 className="font-semibold">Vaccinated</h3>
               </div>
-              <p className="text-2xl font-bold mt-2">{formatNumber(state.peopleVaccinated)}</p>
+              <p className="text-2xl font-bold mt-2">{formatNumber(state.totalVaccinated)}</p>
               <p className="text-sm text-gray-500">{vaccinatedPercentage}% of {formatNumber(state.population)}</p>
             </div>
 
@@ -118,7 +117,9 @@ export default function Dashboard({ state }: DashboardProps) {
               <div className="space-y-1 mt-2">
                 <div className="flex justify-between">
                   <span className="text-gray-600">R₀:</span>
-                  <span className="font-bold">{state.r0.toFixed(2)}</span>
+                  <span className="font-bold">
+                    {(state.beta * state.recoveryDays).toFixed(2)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Rₑ:</span>
@@ -126,7 +127,9 @@ export default function Dashboard({ state }: DashboardProps) {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Herd Immunity:</span>
-                  <span className="font-bold">{(state.herdImmunityThreshold * 100).toFixed(1)}%</span>
+                  <span className="font-bold">
+                    {((1 - 1/(state.beta * state.recoveryDays)) * 100).toFixed(1)}%
+                  </span>
                 </div>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import { SimulationState, SimulationConfig } from '../types';
+import { calculatePolicyEffects } from './policyCalculations';
 
 interface DiseaseTransitions {
   newInfected: number;
@@ -15,22 +16,34 @@ interface DiseaseState {
   re: number;
 }
 
+interface DiseaseParameters {
+  beta: number;
+  gamma: number;
+}
+
+function calculateDiseaseParameters(config: SimulationConfig): DiseaseParameters {
+  const gamma = 1 / config.recoveryDays;
+  return { beta: config.beta, gamma };
+}
+
 function calculateEffectiveR(
-  r0: number, 
-  susceptible: number, 
+  beta: number,
+  gamma: number,
+  susceptible: number,
   population: number
 ): number {
-  const susceptibleProportion = susceptible / population;
-  return Math.max(0, r0 * susceptibleProportion);
+  // R(t) = (beta * gamma) / (S(t) * N)
+  return (beta * gamma ) / (susceptible * population);
 }
 
 function calculateTransitions(
-  state: SimulationState, 
-  config: SimulationConfig, 
-  currentRe: number
+  state: SimulationState,
+  params: DiseaseParameters,
+  population: number,
+  mortalityRate: number
 ): DiseaseTransitions {
-  // Calculate expected new infections
-  const expectedNewInfections = state.infected * (currentRe / config.recoveryDays);
+  // Calculate expected new infections using beta
+  const expectedNewInfections = params.beta * state.susceptible * state.infected / population;
   
   // Use probabilistic rounding for new infections
   const wholePart = Math.floor(expectedNewInfections);
@@ -38,8 +51,8 @@ function calculateTransitions(
   const extraInfection = Math.random() < fractionalPart ? 1 : 0;
   const newInfected = Math.min(wholePart + extraInfection, state.susceptible);
 
-  // Calculate expected recoveries/deaths
-  const expectedExits = state.infected / config.recoveryDays;
+  // Calculate expected recoveries/deaths using gamma
+  const expectedExits = params.gamma * state.infected;
   
   // Use probabilistic rounding for exits
   const wholeExits = Math.floor(expectedExits);
@@ -47,8 +60,8 @@ function calculateTransitions(
   const extraExit = Math.random() < fractionalExits ? 1 : 0;
   const totalExits = Math.min(wholeExits + extraExit, state.infected);
 
-  // Calculate deaths and recoveries
-  const newDeceased = Math.floor(totalExits * config.mortalityRate);
+  // Calculate deaths and recoveries using passed mortality rate
+  const newDeceased = Math.floor(totalExits * mortalityRate);
   const newRecovered = totalExits - newDeceased;
 
   return { newInfected, newRecovered, newDeceased };
@@ -77,18 +90,30 @@ function calculateNewState(
     totalCases: state.totalCases + transitions.newInfected,
     re: currentRe,
   };
-}
-
-export function calculateDisease(
+}export function calculateDisease(
   state: SimulationState, 
-  config: SimulationConfig
+  config: SimulationConfig,
+  activePolicies: Set<string>
 ): DiseaseState {
+  const { beta, gamma } = calculateDiseaseParameters(config);
+  
+  const { transmissionReduction } = calculatePolicyEffects(activePolicies, state);
+  
+  const adjustedBeta = beta * Math.max(0, 1 - transmissionReduction);
+  
   const currentRe = calculateEffectiveR(
-    state.r0,
+    adjustedBeta,
+    gamma,
     state.susceptible,
     state.population
   );
   
-  const transitions = calculateTransitions(state, config, currentRe);
+  const transitions = calculateTransitions(
+    state, 
+    { beta: adjustedBeta, gamma }, 
+    state.population,
+    config.mortalityRate
+  );
   return calculateNewState(state, transitions, currentRe);
 }
+
