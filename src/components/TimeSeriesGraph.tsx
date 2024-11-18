@@ -64,22 +64,22 @@ export default function TimeSeriesGraph({ data }: TimeSeriesGraphProps) {
 
   const CustomLegend = useMemo(() => {
     return () => (
-      <div className="flex flex-wrap justify-center gap-4 mt-4">
+      <div className="flex flex-wrap justify-center gap-2 mt-4 px-2">
         {dataLines.map(line => (
           <button
             key={line.key}
             onClick={() => toggleLine(line.key)}
-            className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
+            className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs ${
               visibleLines.has(line.key)
                 ? 'bg-gray-100 text-gray-900'
                 : 'bg-gray-50 text-gray-400'
             }`}
           >
             <span
-              className="w-3 h-3 rounded-full"
+              className="w-2 h-2 rounded-full"
               style={{ backgroundColor: line.color }}
             />
-            <span className="text-sm font-medium">{line.name}</span>
+            <span className="font-medium">{line.name}</span>
           </button>
         ))}
       </div>
@@ -92,7 +92,7 @@ export default function TimeSeriesGraph({ data }: TimeSeriesGraphProps) {
   ], [formatMoney, formatNumber]);
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
+    <div className="bg-white rounded-xl shadow-lg p-6 h-[550px]">
       <div className="flex items-center space-x-2 mb-4">
         <TrendingUp className="w-6 h-6 text-blue-600" />
         <h2 className="text-xl font-bold">Pandemic Progress</h2>
