@@ -11,7 +11,9 @@
     "recharts",
     "tailwindcss",
     "autoprefixer",
-    "postcss"
+    "postcss",
+    "linecap",
+    "linejoin"
   ],
   "ignorePaths": [
     "node_modules/**",
