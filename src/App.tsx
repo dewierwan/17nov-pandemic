@@ -30,6 +30,14 @@ function App() {
     });
   };
 
+  const handleDateDisplayChange = (useDates: boolean) => {
+    updateConfig({
+      ...config,
+      useDates,
+      startDate: useDates ? (config.startDate || new Date()) : undefined
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow-md">
@@ -94,7 +102,11 @@ function App() {
         )}
         
         <Dashboard state={state} />
-        <StatisticsGraphs data={state.timeSeriesData} />
+        <StatisticsGraphs 
+          data={state.timeSeriesData} 
+          config={config}
+          onDateDisplayChange={handleDateDisplayChange}
+        />
         
         <PolicySelector 
           onSelectPolicy={implementPolicy}

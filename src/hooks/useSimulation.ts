@@ -16,7 +16,9 @@ export function useSimulation() {
     gamma: SIMULATION_DEFAULTS.GAMMA,
     contactsPerDay: SIMULATION_DEFAULTS.CONTACTS_PER_DAY,
     transmissionProbability: SIMULATION_DEFAULTS.TRANSMISSION_PROBABILITY,
-    latentPeriod: SIMULATION_DEFAULTS.LATENT_PERIOD
+    latentPeriod: SIMULATION_DEFAULTS.LATENT_PERIOD,
+    useDates: false,
+    startDate: undefined
   });
 
   const [state, setState] = useState<SimulationState>(getInitialState(config));
@@ -33,6 +35,20 @@ export function useSimulation() {
   }, []);
 
   const updateConfig = useCallback((newConfig: SimulationConfig) => {
+    // If only the date display settings changed, don't reset the simulation
+    const isOnlyDateDisplayChange = 
+      Object.keys(newConfig).every(key => 
+        key === 'useDates' || 
+        key === 'startDate' || 
+        newConfig[key as keyof SimulationConfig] === config[key as keyof SimulationConfig]
+      );
+
+    if (isOnlyDateDisplayChange) {
+      setConfig(newConfig);
+      return;
+    }
+
+    // Otherwise, proceed with full config update and simulation reset
     const updatedConfig = {
       ...newConfig,
       gamma: 1 / newConfig.infectiousPeriod,
@@ -44,7 +60,7 @@ export function useSimulation() {
       ...getInitialState(updatedConfig),
       isRunning: current.isRunning
     }));
-  }, []);
+  }, [config]);
 
   const implementPolicy = useCallback((policy: PolicyOption) => {
     if (policy.oneTime) {

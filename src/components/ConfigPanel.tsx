@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Settings, ChevronDown, ChevronUp } from 'lucide-react';
 import { SimulationConfig } from '../types';
+import Tooltip from './Tooltip';
 
 interface ConfigPanelProps {
   config: SimulationConfig;
@@ -84,6 +85,19 @@ const probabilityToSlider = probabilityHandlers.valueToSlider;
 const sliderToMortality = mortalityHandlers.sliderToValue;
 const mortalityToSlider = mortalityHandlers.valueToSlider;
 
+// Add tooltips configuration
+const tooltips = {
+  daysPerSecond: "Controls how fast the simulation runs. Higher values make the simulation run faster.",
+  population: "The total number of people in the simulated population.",
+  economicCostPerDeath: "The estimated economic impact of each death, including healthcare costs and lost productivity.",
+  contactsPerDay: "Average number of close contacts each person has per day that could lead to disease transmission.",
+  transmissionProbability: "The probability that an infectious contact results in disease transmission.",
+  latentPeriod: "The time between exposure and becoming infectious (incubation period). During this period, individuals are infected but not yet contagious.",
+  infectiousPeriod: "How long an infected person remains contagious.",
+  mortalityRate: "The percentage of infected individuals who die from the disease (Infection Fatality Rate).",
+  useDates: "Toggle between showing days since start or actual calendar dates",
+};
+
 export default function ConfigPanel({ config, onConfigChange, disabled }: ConfigPanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -133,8 +147,11 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
       
       {isExpanded && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          
+          
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-gray-700 flex items-center">
+              <Tooltip text={tooltips.daysPerSecond} />
               Simulation speed
             </label>
             <input
@@ -153,7 +170,8 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-gray-700 flex items-center">
+              <Tooltip text={tooltips.population} />
               Population
             </label>
             <input
@@ -172,7 +190,8 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-gray-700 flex items-center">
+              <Tooltip text={tooltips.economicCostPerDeath} />
               Economic cost per Death
             </label>
             <input
@@ -191,7 +210,8 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-gray-700 flex items-center">
+              <Tooltip text={tooltips.contactsPerDay} />
               Daily Contacts (k)
             </label>
             <input
@@ -210,7 +230,8 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-gray-700 flex items-center">
+              <Tooltip text={tooltips.transmissionProbability} />
               Transmission probability per contact
             </label>
             <input
@@ -229,7 +250,8 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-gray-700 flex items-center">
+              <Tooltip text={tooltips.latentPeriod} />
               Latent period
             </label>
             <input
@@ -248,7 +270,8 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-gray-700 flex items-center">
+              <Tooltip text={tooltips.infectiousPeriod} />
               Infectious period
             </label>
             <input
@@ -267,7 +290,8 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-gray-700 flex items-center">
+              <Tooltip text={tooltips.mortalityRate} />
               Infection fatality rate (IFR)
             </label>
             <input

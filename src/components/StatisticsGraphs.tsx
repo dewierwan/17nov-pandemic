@@ -1,13 +1,64 @@
 import { useState, useCallback, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp, Activity } from 'lucide-react';
-import { TimeSeriesDataPoint } from '../types';
+import { TimeSeriesDataPoint, SimulationConfig } from '../types';
+import { format } from 'date-fns';
 
 interface StatisticsGraphsProps {
   data: TimeSeriesDataPoint[];
+  config: SimulationConfig;
+  onDateDisplayChange: (useDates: boolean) => void;
 }
 
-export default function StatisticsGraphs({ data }: StatisticsGraphsProps) {
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: any[];
+  label?: number;
+  useDates?: boolean;
+  startDate?: Date;
+}
+
+const CustomTooltip = ({ active, payload, label, useDates, startDate }: CustomTooltipProps) => {
+  if (!active || !payload) return null;
+
+  let dateStr = '';
+  if (useDates && startDate && label !== undefined) {
+    const date = new Date(startDate);
+    date.setDate(date.getDate() + label);
+    dateStr = format(date, 'dd MMM, yyyy');
+  }
+
+  const formatValue = (value: number, name: string) => {
+    if (name.includes('Economic Cost')) {
+      if (value >= 1e12) return `$${(value / 1e12).toFixed(1)}T`;
+      if (value >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
+      if (value >= 1e6) return `$${(value / 1e6).toFixed(1)}M`;
+      if (value >= 1e3) return `$${(value / 1e3).toFixed(1)}K`;
+      return `$${value.toFixed(0)}`;
+    } else {
+      if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
+      if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+      if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+      return value.toFixed(0);
+    }
+  };
+
+  return (
+    <div className="bg-white p-3 border border-gray-200 shadow-lg rounded-lg">
+      <div className="mb-2">
+        <p className="font-medium">Day {label}</p>
+        {dateStr && <p className="text-gray-600 text-sm">{dateStr}</p>}
+      </div>
+      {payload.map((entry: any, index: number) => (
+        <p key={index} style={{ color: entry.color }}>
+          {`${entry.name} : ${formatValue(entry.value, entry.name)}`}
+        </p>
+      ))}
+    </div>
+  );
+};
+
+export default function StatisticsGraphs({ data, config, onDateDisplayChange }: StatisticsGraphsProps) {
   const [view, setView] = useState<'daily' | 'cumulative'>('daily');
 
   // Shared formatting functions
@@ -78,12 +129,14 @@ export default function StatisticsGraphs({ data }: StatisticsGraphsProps) {
     });
   }, []);
 
-  const tooltipFormatter = useCallback((value: number, name: string) => {
-    if (name === 'Economic Cost ($)' || name === 'Daily Economic Cost') {
-      return [formatMoney(value), name];
+  const formatXAxis = useCallback((value: number) => {
+    if (!config.useDates || !config.startDate) {
+      return value.toString();
     }
-    return [formatNumber(value), name];
-  }, [formatNumber, formatMoney]);
+    const date = new Date(config.startDate);
+    date.setDate(date.getDate() + value);
+    return format(date, 'dd MMM');
+  }, [config.useDates, config.startDate]);
 
   const CustomLegend = useMemo(() => {
     const currentDataLines = view === 'cumulative' ? cumulativeDataLines : dailyDataLines;
@@ -112,7 +165,7 @@ export default function StatisticsGraphs({ data }: StatisticsGraphsProps) {
   }, [view, cumulativeDataLines, dailyDataLines, visibleLines, toggleLine]);
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 h-[550px]">
+    <div className="bg-white rounded-xl shadow-lg p-6 h-[550px] relative">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           {view === 'cumulative' ? (
@@ -152,12 +205,17 @@ export default function StatisticsGraphs({ data }: StatisticsGraphsProps) {
         <ResponsiveContainer>
           <LineChart 
             data={view === 'cumulative' ? data : dailyData}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            margin={{ top: 20, right: 65, left: 65, bottom: 20 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="day" 
-              label={{ value: 'Days', position: 'insideBottom', offset: -5 }} 
+              tickFormatter={formatXAxis}
+              label={{ 
+                value: config.useDates ? 'Date' : 'Days', 
+                position: 'insideBottom', 
+                offset: -10 
+              }} 
             />
             <YAxis 
               yAxisId="left"
@@ -166,8 +224,10 @@ export default function StatisticsGraphs({ data }: StatisticsGraphsProps) {
                 value: view === 'cumulative' ? 'Population' : 'Daily Cases/Deaths',
                 angle: -90, 
                 position: 'insideLeft',
-                offset: 15
-              }} 
+                offset: -45,
+                style: { textAnchor: 'middle' }
+              }}
+              dx={-10}
             />
             <YAxis
               yAxisId="right"
@@ -177,10 +237,19 @@ export default function StatisticsGraphs({ data }: StatisticsGraphsProps) {
                 value: view === 'cumulative' ? 'Economic Cost' : 'Daily Economic Cost',
                 angle: 90,
                 position: 'insideRight',
-                offset: 15
+                offset: -45,
+                style: { textAnchor: 'middle' }
               }}
+              dx={10}
             />
-            <Tooltip formatter={tooltipFormatter} />
+            <Tooltip 
+              content={
+                <CustomTooltip 
+                  useDates={config.useDates} 
+                  startDate={config.startDate} 
+                />
+              }
+            />
             {(view === 'cumulative' ? cumulativeDataLines : dailyDataLines).map(line => (
               visibleLines.has(line.key) && (
                 <Line
@@ -199,6 +268,21 @@ export default function StatisticsGraphs({ data }: StatisticsGraphsProps) {
         </ResponsiveContainer>
       </div>
       <CustomLegend />
+      
+      <div className="absolute bottom-6 right-6">
+        <label className="inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={config.useDates}
+            onChange={(e) => onDateDisplayChange(e.target.checked)}
+            className="sr-only peer"
+          />
+          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          <span className="ml-3 text-sm font-medium text-gray-700">
+            {config.useDates ? 'Calendar Dates' : 'Days Since Start'}
+          </span>
+        </label>
+      </div>
     </div>
   );
 } 

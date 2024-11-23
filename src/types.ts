@@ -48,10 +48,12 @@ export interface SimulationConfig {
   infectiousPeriod: number;
   daysPerSecond: number;
   economicCostPerDeath: number;
-  gamma?: number;
+  gamma: number;
   contactsPerDay: number;
   transmissionProbability: number;
   latentPeriod: number;
+  useDates: boolean;
+  startDate?: Date;
 }
 
 export interface PolicyOption {

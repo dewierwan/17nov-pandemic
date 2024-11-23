@@ -24,15 +24,17 @@ interface SimulationStore {
 }
 
 const initialConfig: SimulationConfig = {
-  population: 100_000_000,
-  mortalityRate: 0.05,
-  infectiousPeriod: 8,
-  daysPerSecond: 5,
+  population: 1_000_000,
+  mortalityRate: 0.02,
+  infectiousPeriod: 14,
+  daysPerSecond: 10,
   economicCostPerDeath: 1_000_000,
   gamma: 1/14,
   contactsPerDay: 10,
   transmissionProbability: 0.015,
-  latentPeriod: 5
+  latentPeriod: 5,
+  useDates: false,
+  startDate: undefined
 };
 
 export const useSimulationStore = create<SimulationStore>((set, get) => ({
