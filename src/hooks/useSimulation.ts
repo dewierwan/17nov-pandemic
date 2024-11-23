@@ -9,12 +9,13 @@ export function useSimulation() {
   const [config, setConfig] = useState<SimulationConfig>({
     population: 100_000_000,
     mortalityRate: 0.05,
-    recoveryDays: 14,
-    daysPerSecond: 20,
+    infectiousPeriod: 8,
+    daysPerSecond: 5,
     economicCostPerDeath: 1_000_000,
     gamma: 1/14,
     contactsPerDay: 10,
-    transmissionProbability: 0.015
+    transmissionProbability: 0.015,
+    latentPeriod: 5
   });
 
   const [state, setState] = useState<SimulationState>(getInitialState(config));
@@ -33,7 +34,8 @@ export function useSimulation() {
   const updateConfig = useCallback((newConfig: SimulationConfig) => {
     const updatedConfig = {
       ...newConfig,
-      gamma: 1 / newConfig.recoveryDays
+      gamma: 1 / newConfig.infectiousPeriod,
+      sigma: 1 / newConfig.latentPeriod
     };
     
     setConfig(updatedConfig);

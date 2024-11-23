@@ -44,5 +44,24 @@ Effective immediately.`,
     implementationDelay: 3,
     dailyCostPerPerson: 3,
     oneTime: false
+  },
+  {
+    id: 'rapid_containment',
+    name: 'Rapid Detection & Containment',
+    description: `Implement aggressive testing and isolation.
+Reduces infectious contacts by 80%.
+Identifies and isolates 50% of exposed cases.
+Cost: $200 per active case per day.
+Plus $5 per person per day for surveillance.
+Moderate social cost.
+Effective after: 5 days`,
+    economicImpact: 0,
+    contactReduction: 0.8,
+    exposedDetectionRate: 0.5,
+    socialCost: 0,
+    implementationDelay: 5,
+    dailyCostPerPerson: 5,
+    dailyCostPerCase: 200,
+    oneTime: false
   }
 ];

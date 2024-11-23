@@ -2,10 +2,13 @@ import { Bug } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import SimulationControls from './components/SimulationControls';
 import ConfigPanel from './components/ConfigPanel';
+import PathogenSelector from './components/PathogenSelector';
 import TimeSeriesGraph from './components/TimeSeriesGraph';
 import PolicySelector from './components/PolicySelector';
 import DailyStatsGraph from './components/DailyStatsGraph';
+import EconomicBreakdown from './components/EconomicBreakdown';
 import { useSimulation } from './hooks/useSimulation';
+import { Pathogen } from './types';
 
 function App() {
   const { 
@@ -18,6 +21,16 @@ function App() {
     usedPolicies,
     activePolicies 
   } = useSimulation();
+
+  const handlePathogenSelect = (pathogen: Pathogen) => {
+    updateConfig({
+      ...config,
+      transmissionProbability: pathogen.transmissionProbability,
+      latentPeriod: pathogen.latentPeriod,
+      infectiousPeriod: pathogen.infectiousPeriod,
+      mortalityRate: pathogen.mortalityRate
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -39,11 +52,18 @@ function App() {
         />
         
         {!state.isRunning && (
-          <ConfigPanel
-            config={config}
-            onConfigChange={updateConfig}
-            disabled={state.isRunning}
-          />
+          <>
+            <PathogenSelector
+              onSelectPathogen={handlePathogenSelect}
+              disabled={state.isRunning}
+            />
+            
+            <ConfigPanel
+              config={config}
+              onConfigChange={updateConfig}
+              disabled={state.isRunning}
+            />
+          </>
         )}
         
         <Dashboard state={state} />
@@ -58,6 +78,7 @@ function App() {
           usedPolicies={usedPolicies}
           activePolicies={activePolicies}
         />
+        <EconomicBreakdown state={state} config={config} />
       </main>
     </div>
   );

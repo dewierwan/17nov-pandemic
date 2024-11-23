@@ -8,7 +8,7 @@ export interface SimulationState {
   totalCases: number;
   beta: number;
   gamma: number;
-  recoveryDays: number;
+  infectiousPeriod: number;
   r0: number;
   re: number;
   herdImmunityThreshold: number;
@@ -25,6 +25,9 @@ export interface SimulationState {
   policyCosts: PolicyCost[];
   effectiveContacts: number;
   effectiveTransmissionRate: number;
+  exposed: number;
+  latentPeriod: number;
+  sigma: number;
 }
 
 export interface TimeSeriesDataPoint {
@@ -42,12 +45,13 @@ export interface TimeSeriesDataPoint {
 export interface SimulationConfig {
   population: number;
   mortalityRate: number;
-  recoveryDays: number;
+  infectiousPeriod: number;
   daysPerSecond: number;
   economicCostPerDeath: number;
   gamma?: number;
   contactsPerDay: number;
   transmissionProbability: number;
+  latentPeriod: number;
 }
 
 export interface PolicyOption {
@@ -57,9 +61,11 @@ export interface PolicyOption {
   economicImpact: number;
   contactReduction?: number;
   transmissionReduction?: number;
+  exposedDetectionRate?: number;
   socialCost: number;
   implementationDelay: number;
   dailyCostPerPerson: number;
+  dailyCostPerCase?: number;
   oneTime?: boolean;
 }
 
@@ -71,4 +77,14 @@ export interface PolicyCost {
 export interface DiseaseParameters {
   beta: number;
   gamma: number;
+}
+
+export interface Pathogen {
+  id: string;
+  name: string;
+  description: string;
+  transmissionProbability: number;  // pi
+  latentPeriod: number;            // 1/sigma
+  infectiousPeriod: number;        // 1/gamma
+  mortalityRate: number;           // IFR
 }

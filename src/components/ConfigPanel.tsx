@@ -173,6 +173,25 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
+              Economic cost per Death
+            </label>
+            <input
+              type="range"
+              min="100000"
+              max="20000000"
+              step="100000"
+              value={config.economicCostPerDeath}
+              onChange={(e) => handleChange('economicCostPerDeath', e.target.value)}
+              disabled={disabled}
+              className="w-full mt-1"
+            />
+            <div className="text-sm text-gray-600 mt-1">
+              Current: {formatMoney(config.economicCostPerDeath)}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
               Daily Contacts (k)
             </label>
             <input
@@ -211,6 +230,25 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
+              Latent period
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="100"
+              step="1"
+              value={config.latentPeriod}
+              onChange={(e) => handleChange('latentPeriod', e.target.value)}
+              disabled={disabled}
+              className="w-full mt-1"
+            />
+            <div className="text-sm text-gray-600 mt-1">
+              {config.latentPeriod} days (σ = {(1/config.latentPeriod).toFixed(3)})
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
               Infectious period
             </label>
             <input
@@ -218,13 +256,13 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
               min="1"
               max="30"
               step="1"
-              value={config.recoveryDays}
-              onChange={(e) => handleChange('recoveryDays', e.target.value)}
+              value={config.infectiousPeriod}
+              onChange={(e) => handleChange('infectiousPeriod', e.target.value)}
               disabled={disabled}
               className="w-full mt-1"
             />
             <div className="text-sm text-gray-600 mt-1">
-              {config.recoveryDays} days (γ = {(1/config.recoveryDays).toFixed(3)})
+              {config.infectiousPeriod} days (γ = {(1/config.infectiousPeriod).toFixed(3)})
             </div>
           </div>
 
@@ -247,26 +285,6 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Economic cost per Death
-            </label>
-            <input
-              type="range"
-              min="100000"
-              max="20000000"
-              step="100000"
-              value={config.economicCostPerDeath}
-              onChange={(e) => handleChange('economicCostPerDeath', e.target.value)}
-              disabled={disabled}
-              className="w-full mt-1"
-            />
-            <div className="text-sm text-gray-600 mt-1">
-              Current: {formatMoney(config.economicCostPerDeath)}
-            </div>
-          </div>
-
-          
         </div>
       )}
     </div>

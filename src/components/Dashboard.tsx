@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { SimulationState } from '../types';
-import { Users, Heart, DollarSign, Activity, UserCheck, AlertTriangle, Shield, Syringe, ChevronDown, ChevronUp } from 'lucide-react';
+import { Users, Heart, DollarSign, Activity, UserCheck, AlertTriangle, Shield, Syringe, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 
 interface DashboardProps {
   state: SimulationState;
@@ -110,13 +110,17 @@ export default function Dashboard({ state }: DashboardProps) {
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center space-x-2 text-orange-600">
-                <AlertTriangle className="w-5 h-5" />
-                <h3 className="font-semibold">Total Infections</h3>
+              <div className="flex items-center space-x-2 text-yellow-600">
+                <AlertCircle className="w-5 h-5" />
+                <h3 className="font-semibold">Exposed (Pre-infectious)</h3>
               </div>
-              <p className="text-2xl font-bold mt-2">{formatNumber(state.totalCases)}</p>
-              <p className="text-sm text-gray-500">{totalInfectionPercentage}% of {formatNumber(state.population)}</p>
+              <p className="text-2xl font-bold mt-2">{formatNumber(state.exposed)}</p>
+              <p className="text-sm text-gray-500">
+                {((state.exposed / state.population) * 100).toFixed(1)}% of population
+              </p>
             </div>
+
+            
 
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center space-x-2 text-blue-600">
@@ -155,6 +159,15 @@ export default function Dashboard({ state }: DashboardProps) {
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center space-x-2 text-orange-600">
+                <AlertTriangle className="w-5 h-5" />
+                <h3 className="font-semibold">Total Infections</h3>
+              </div>
+              <p className="text-2xl font-bold mt-2">{formatNumber(state.totalCases)}</p>
+              <p className="text-sm text-gray-500">{totalInfectionPercentage}% of {formatNumber(state.population)}</p>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center space-x-2 text-emerald-600">
                 <DollarSign className="w-5 h-5" />
                 <h3 className="font-semibold">Economic Cost</h3>
@@ -163,9 +176,6 @@ export default function Dashboard({ state }: DashboardProps) {
               <p className="text-sm text-gray-500">Total economic damage</p>
             </div>
 
-            
-
-            
           </div>
         </div>
       )}
