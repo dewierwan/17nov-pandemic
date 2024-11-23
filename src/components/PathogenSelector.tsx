@@ -2,6 +2,7 @@ import { Shield, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { Pathogen } from '../types';
 import { pathogenOptions } from '../data/pathogenDefinitions';
+import { getAssetPath } from '../utils/assetHelpers';
 
 interface PathogenSelectorProps {
   onSelectPathogen: (pathogen: Pathogen) => void;
@@ -43,7 +44,7 @@ export default function PathogenSelector({ onSelectPathogen, disabled }: Pathoge
             >
               <div className="aspect-w-16 aspect-h-9 mb-3">
                 <img
-                  src={`/assets/pathogens/${pathogen.id}.jpg`}
+                  src={getAssetPath(`assets/pathogens/${pathogen.id}.png`)}
                   alt={pathogen.name}
                   className="w-full h-48 object-cover rounded-lg mb-3"
                 />

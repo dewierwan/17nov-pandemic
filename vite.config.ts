@@ -8,5 +8,6 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3000
   },
-  assetsInclude: ['**/*.jpg', '**/*.png', '**/*.gif'],
+  assetsInclude: ['**/*.jpg', '**/*.png', '**/*.gif', '**/*.svg'],
+  publicDir: 'public',
 });
