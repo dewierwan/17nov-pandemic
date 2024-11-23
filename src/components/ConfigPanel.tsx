@@ -196,7 +196,7 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
             </label>
             <input
               type="range"
-              min="100000"
+              min="0"
               max="20000000"
               step="100000"
               value={config.economicCostPerDeath}

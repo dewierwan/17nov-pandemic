@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { SimulationState } from '../types';
+import { SimulationState, SimulationConfig } from '../types';
 import { Users, Heart, DollarSign, Activity, UserCheck, AlertTriangle, Shield, Syringe, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 
 interface DashboardProps {
   state: SimulationState;
+  config: SimulationConfig;
 }
 
 const formatNumber = (num: number) => {
@@ -21,7 +22,7 @@ const formatMoney = (amount: number) => {
   return `$${amount.toFixed(0)}`;
 };
 
-export default function Dashboard({ state }: DashboardProps) {
+export default function Dashboard({ state, config }: DashboardProps) {
   const [isStatsExpanded, setIsStatsExpanded] = useState(true);
 
   const totalInfectionPercentage = ((state.totalCases / state.population) * 100).toFixed(1);
@@ -58,6 +59,12 @@ export default function Dashboard({ state }: DashboardProps) {
                 <h3 className="font-semibold">Basic Parameters</h3>
               </div>
               <div className="space-y-1 mt-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">IFR:</span>
+                  <span className="font-bold">
+                    {(config.mortalityRate * 100).toFixed(1)}%
+                  </span>
+                </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">R₀:</span>
                   <span className="font-bold">
@@ -173,7 +180,6 @@ export default function Dashboard({ state }: DashboardProps) {
                 <h3 className="font-semibold">Economic Cost</h3>
               </div>
               <p className="text-2xl font-bold mt-2">{formatMoney(state.totalCosts)}</p>
-              <p className="text-sm text-gray-500">Total economic damage</p>
             </div>
 
           </div>

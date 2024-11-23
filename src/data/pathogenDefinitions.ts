@@ -36,6 +36,15 @@ export const pathogenOptions: Pathogen[] = [
     latentPeriod: 5,                // ~5 days incubation
     infectiousPeriod: 10,                // ~8 days infectious period
     mortalityRate: 0.01             // ~1% IFR
+  },
+  {
+    id: 'omicron',
+    name: 'SARS-CoV-2 Omicron',
+    description: 'Coronavirus causing COVID-19. Omicron variant',
+    transmissionProbability: 0.08,  // Moderate transmission
+    latentPeriod: 3,                // ~5 days incubation
+    infectiousPeriod: 8,                // ~8 days infectious period
+    mortalityRate: 0.002             // ~1% IFR
   }
   /*
   {

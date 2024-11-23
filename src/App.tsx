@@ -101,7 +101,10 @@ function App() {
           </>
         )}
         
-        <Dashboard state={state} />
+        <Dashboard 
+          state={state} 
+          config={config}
+        />
         <StatisticsGraphs 
           data={state.timeSeriesData} 
           config={config}
