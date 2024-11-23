@@ -10,7 +10,7 @@ export const policyOptions: PolicyOption[] = [
     transmissionReduction: 0.3,
     socialCost: 0,
     implementationDelay: 3,
-    dailyCostPerPerson: 3,
+    dailyCostPerPerson: 2,
     oneTime: false
   },
   {
@@ -33,10 +33,10 @@ export const policyOptions: PolicyOption[] = [
     name: 'Mass Vaccination Program',
     description: 'Launch an immediate vaccination program.',
     economicImpact: 0,
-    contactReduction: 0,
+    vaccinationRate: 0.01,
     socialCost: 0,
     implementationDelay: 100,
-    dailyCostPerPerson: 0,
+    costPerVaccination: 20,
     oneTime: true
   },
   {

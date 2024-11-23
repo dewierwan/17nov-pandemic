@@ -7,10 +7,8 @@ interface StatisticsGraphsProps {
   data: TimeSeriesDataPoint[];
 }
 
-type GraphView = 'cumulative' | 'daily';
-
 export default function StatisticsGraphs({ data }: StatisticsGraphsProps) {
-  const [view, setView] = useState<GraphView>('cumulative');
+  const [view, setView] = useState<'daily' | 'cumulative'>('daily');
 
   // Shared formatting functions
   const formatNumber = useCallback((num: number) => {

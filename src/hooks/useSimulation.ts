@@ -4,18 +4,19 @@ import { calculateDisease } from '../utils/disease';
 import { calculateEconomicImpact } from '../utils/economics';
 import { getInitialState } from '../utils/state';
 import { policyOptions } from '../data/policyDefinitions';
+import { VACCINATION_CONSTANTS, SIMULATION_DEFAULTS } from '../utils/constants';
 
 export function useSimulation() {
   const [config, setConfig] = useState<SimulationConfig>({
-    population: 100_000_000,
-    mortalityRate: 0.05,
-    infectiousPeriod: 8,
-    daysPerSecond: 10,
-    economicCostPerDeath: 1_000_000,
-    gamma: 1/14,
-    contactsPerDay: 10,
-    transmissionProbability: 0.015,
-    latentPeriod: 5
+    population: SIMULATION_DEFAULTS.POPULATION,
+    mortalityRate: SIMULATION_DEFAULTS.MORTALITY_RATE,
+    infectiousPeriod: SIMULATION_DEFAULTS.INFECTIOUS_PERIOD,
+    daysPerSecond: SIMULATION_DEFAULTS.DAYS_PER_SECOND,
+    economicCostPerDeath: SIMULATION_DEFAULTS.ECONOMIC_COST_PER_DEATH,
+    gamma: SIMULATION_DEFAULTS.GAMMA,
+    contactsPerDay: SIMULATION_DEFAULTS.CONTACTS_PER_DAY,
+    transmissionProbability: SIMULATION_DEFAULTS.TRANSMISSION_PROBABILITY,
+    latentPeriod: SIMULATION_DEFAULTS.LATENT_PERIOD
   });
 
   const [state, setState] = useState<SimulationState>(getInitialState(config));
@@ -47,18 +48,16 @@ export function useSimulation() {
 
   const implementPolicy = useCallback((policy: PolicyOption) => {
     if (policy.oneTime) {
-      // Handle one-time policies
       if (policy.id === 'vaccination') {
         setState(currentState => ({
           ...currentState,
           isVaccinationStarted: true,
           vaccinationStartDay: currentState.day,
-          totalCosts: currentState.totalCosts + 10_000_000_000
+          totalCosts: currentState.totalCosts + VACCINATION_CONSTANTS.INITIAL_COST
         }));
         setUsedPolicies(current => new Set(current).add(policy.id));
       }
     } else {
-      // Handle toggleable policies
       setActivePolicies(current => {
         const newActivePolicies = new Set(current);
         if (current.has(policy.id)) {
@@ -105,8 +104,10 @@ export function useSimulation() {
             const delayPeriod = vaccinationPolicy?.implementationDelay ?? 0;
             
             if (currentState.day > currentState.vaccinationStartDay + delayPeriod) {
-              // Calculate daily vaccination capacity (1% of initial population)
-              const dailyVaccinationCapacity = Math.floor(currentState.population * 0.01);
+              // Calculate daily vaccination capacity
+              const dailyVaccinationCapacity = Math.floor(
+                currentState.population * VACCINATION_CONSTANTS.DAILY_CAPACITY_PERCENTAGE
+              );
               
               // Calculate new vaccinations for today
               const dailyVaccinated = Math.min(

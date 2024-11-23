@@ -59,14 +59,16 @@ export interface PolicyOption {
   name: string;
   description: string;
   economicImpact: number;
+  socialCost: number;
+  implementationDelay: number;
+  oneTime: boolean;
   contactReduction?: number;
   transmissionReduction?: number;
   exposedDetectionRate?: number;
-  socialCost: number;
-  implementationDelay: number;
-  dailyCostPerPerson: number;
+  dailyCostPerPerson?: number;
   dailyCostPerCase?: number;
-  oneTime?: boolean;
+  vaccinationRate?: number;
+  costPerVaccination?: number;
 }
 
 export interface PolicyCost {

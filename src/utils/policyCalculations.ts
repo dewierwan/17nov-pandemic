@@ -26,10 +26,8 @@ export function calculatePolicyEffects(
       exposedDetectionRate = Math.max(exposedDetectionRate, policy.exposedDetectionRate || 0);
       
       // Calculate daily costs based on both population and active cases
-      const baseCost = policy.dailyCostPerPerson * state.population;
-      const caseCost = policy.dailyCostPerCase 
-        ? policy.dailyCostPerCase * (state.exposed + state.infected)
-        : 0;
+      const baseCost = (policy.dailyCostPerPerson ?? 0) * state.population;
+      const caseCost = (policy.dailyCostPerCase ?? 0) * (state.exposed + state.infected);
       
       dailyCosts += baseCost + caseCost;
     }

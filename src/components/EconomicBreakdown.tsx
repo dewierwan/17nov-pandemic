@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DollarSign } from 'lucide-react';
 import { SimulationState, SimulationConfig, PolicyCost } from '../types';
+import { policyOptions } from '../data/policyDefinitions';
 
 interface EconomicBreakdownProps {
   state: SimulationState;
@@ -13,13 +14,6 @@ const formatMoney = (amount: number) => {
   if (amount >= 1e6) return `$${(amount / 1e6).toFixed(1)} million`;
   if (amount >= 1e3) return `$${(amount / 1e3).toFixed(1)}K`;
   return `$${amount.toFixed(0)}`;
-};
-
-const policyNames: { [key: string]: string } = {
-  'lockdown': 'Full Lockdown',
-  'masks': 'Mandatory Mask Wearing',
-  'testing': 'Testing and Contact Tracing',
-  'distancing': 'Social Distancing Measures'
 };
 
 export default function EconomicBreakdown({ state }: EconomicBreakdownProps) {
@@ -36,10 +30,13 @@ export default function EconomicBreakdown({ state }: EconomicBreakdownProps) {
       name: 'Vaccine (Delivery)',
       cost: state.isVaccinationStarted ? state.vaccineCosts - 10_000_000_000 : 0
     },
-    ...state.policyCosts.map((cost: PolicyCost) => ({
-      name: policyNames[cost.id] || cost.id,
-      cost: cost.totalCost
-    }))
+    ...state.policyCosts.map((cost: PolicyCost) => {
+      const policy = policyOptions.find(p => p.id === cost.id);
+      return {
+        name: policy?.name || cost.id,
+        cost: cost.totalCost
+      };
+    })
   ].filter(item => item.cost > 0);
 
   return (

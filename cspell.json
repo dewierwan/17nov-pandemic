@@ -1,0 +1,20 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "pkgs",
+    "cloudrun",
+    "replit",
+    "vite",
+    "lucide",
+    "zustand",
+    "recharts",
+    "tailwindcss",
+    "autoprefixer",
+    "postcss"
+  ],
+  "ignorePaths": [
+    "node_modules/**",
+    "dist/**"
+  ]
+} 
