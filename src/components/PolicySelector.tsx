@@ -3,7 +3,6 @@ import { Shield, ChevronDown, ChevronUp } from 'lucide-react';
 import { policyOptions } from '../data/policyDefinitions';
 import { PolicyOption } from '../types';
 import { PolicyCard } from './PolicyCard';
-import { getAssetPath } from '../utils/assetHelpers';
 
 interface PolicySelectorProps {
   onSelectPolicy: (policy: PolicyOption) => void;
@@ -40,12 +39,7 @@ export default function PolicySelector({ onSelectPolicy, usedPolicies, activePol
               onSelect={() => onSelectPolicy(policy)}
               isUsed={usedPolicies.has(policy.id)}
               isActive={activePolicies.has(policy.id)}
-            >
-              <img 
-                src={getAssetPath(`assets/policies/${policy.id}.png`)} 
-                alt={policy.name}
-              />
-            </PolicyCard>
+            />
           ))}
         </div>
       )}

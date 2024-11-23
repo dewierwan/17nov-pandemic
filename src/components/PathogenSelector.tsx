@@ -44,9 +44,13 @@ export default function PathogenSelector({ onSelectPathogen, disabled }: Pathoge
             >
               <div className="aspect-w-16 aspect-h-9 mb-3">
                 <img
-                  src={getAssetPath(`assets/pathogens/${pathogen.id}.png`)}
+                  src={getAssetPath(`assets/pathogens/${pathogen.id}.jpg`)}
                   alt={pathogen.name}
                   className="w-full h-48 object-cover rounded-lg mb-3"
+                  onError={(e) => {
+                    console.error(`Failed to load image for ${pathogen.id}`);
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
                 />
               </div>
               <h3 className="font-semibold">{pathogen.name}</h3>

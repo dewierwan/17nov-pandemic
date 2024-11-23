@@ -10,4 +10,8 @@ export default defineConfig({
   },
   assetsInclude: ['**/*.jpg', '**/*.png', '**/*.gif', '**/*.svg'],
   publicDir: 'public',
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets'
+  }
 });

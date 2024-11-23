@@ -1,4 +1,5 @@
 import { PolicyOption } from '../types';
+import { getAssetPath } from '../utils/assetHelpers';
 
 interface PolicyCardProps {
   policy: PolicyOption;
@@ -26,7 +27,7 @@ export function PolicyCard({ policy, onSelect, isUsed, isActive }: PolicyCardPro
     >
       <div className="aspect-w-16 aspect-h-9 mb-3">
         <img
-          src={`/assets/policies/${policy.id}.jpg`}
+          src={getAssetPath(`assets/policies/${policy.id}.jpg`)}
           alt={policy.name}
           className="w-full h-48 object-cover rounded-lg mb-3"
           onError={(e) => {
