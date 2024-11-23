@@ -88,3 +88,11 @@ export interface Pathogen {
   infectiousPeriod: number;        // 1/gamma
   mortalityRate: number;           // IFR
 }
+
+export interface Policy {
+  id: string;
+  name: string;
+  description: string;
+  oneTime: boolean;
+  effect: (state: any, config: any) => any; // You may want to properly type these based on your state and config types
+}

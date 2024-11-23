@@ -1,11 +1,9 @@
-import { Bug } from 'lucide-react';
+import { Bug, Pause, Play, RotateCcw } from 'lucide-react';
 import Dashboard from './components/Dashboard';
-import SimulationControls from './components/SimulationControls';
 import ConfigPanel from './components/ConfigPanel';
 import PathogenSelector from './components/PathogenSelector';
-import TimeSeriesGraph from './components/TimeSeriesGraph';
+import StatisticsGraphs from './components/StatisticsGraphs';
 import PolicySelector from './components/PolicySelector';
-import DailyStatsGraph from './components/DailyStatsGraph';
 import EconomicBreakdown from './components/EconomicBreakdown';
 import { useSimulation } from './hooks/useSimulation';
 import { Pathogen } from './types';
@@ -36,21 +34,50 @@ function App() {
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center space-x-3">
-            <Bug className="w-8 h-8 text-red-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Disease Simulator</h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Bug className="w-8 h-8 text-red-600" />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Disease Simulator</h1>
+                <p className="text-gray-600">Simulate the spread of an infectious disease in a population</p>
+              </div>
+            </div>
+
+            <div className="flex space-x-4">
+              <button
+                onClick={toggleSimulation}
+                className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
+                  state.isRunning
+                    ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                    : 'bg-green-100 text-green-700 hover:bg-green-200'
+                }`}
+              >
+                {state.isRunning ? (
+                  <>
+                    <Pause className="w-5 h-5" />
+                    <span>Pause Simulation</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-5 h-5" />
+                    <span>Start Simulation</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={reset}
+                className="flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+              >
+                <RotateCcw className="w-5 h-5" />
+                <span>Reset Simulation</span>
+              </button>
+            </div>
           </div>
-          <p className="mt-2 text-gray-600">Simulate the spread of an infectious disease in a population</p>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto py-6 space-y-6 px-4">
-        <SimulationControls
-          isRunning={state.isRunning}
-          onToggleSimulation={toggleSimulation}
-          onReset={reset}
-        />
-        
         {!state.isRunning && (
           <>
             <PathogenSelector
@@ -67,11 +94,7 @@ function App() {
         )}
         
         <Dashboard state={state} />
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TimeSeriesGraph data={state.timeSeriesData} />
-          <DailyStatsGraph data={state.timeSeriesData} />
-        </div>
+        <StatisticsGraphs data={state.timeSeriesData} />
         
         <PolicySelector 
           onSelectPolicy={implementPolicy}

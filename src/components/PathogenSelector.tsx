@@ -43,7 +43,7 @@ export default function PathogenSelector({ onSelectPathogen, disabled }: Pathoge
             >
               <div className="aspect-w-16 aspect-h-9 mb-3">
                 <img
-                  src={`/src/assets/pathogens/${pathogen.id}.jpg`}
+                  src={`/assets/pathogens/${pathogen.id}.jpg`}
                   alt={pathogen.name}
                   className="w-full h-48 object-cover rounded-lg mb-3"
                 />

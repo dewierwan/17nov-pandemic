@@ -10,7 +10,7 @@ export function useSimulation() {
     population: 100_000_000,
     mortalityRate: 0.05,
     infectiousPeriod: 8,
-    daysPerSecond: 5,
+    daysPerSecond: 10,
     economicCostPerDeath: 1_000_000,
     gamma: 1/14,
     contactsPerDay: 10,
