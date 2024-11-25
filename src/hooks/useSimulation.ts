@@ -3,7 +3,7 @@ import { SimulationState, SimulationConfig, PolicyOption } from '../types';
 import { calculateDisease } from '../utils/disease';
 import { calculateEconomicImpact } from '../utils/economics';
 import { getInitialState } from '../utils/state';
-import { policyOptions } from '../data/policyDefinitions';
+import { policyOptions } from '../data/policyDefinitions.ts';
 import { VACCINATION_CONSTANTS, SIMULATION_DEFAULTS } from '../utils/constants';
 
 export function useSimulation() {
@@ -116,7 +116,7 @@ export function useSimulation() {
           if (currentState.isVaccinationStarted && 
               currentState.vaccinationStartDay !== undefined) {
             
-            const vaccinationPolicy = policyOptions.find(p => p.id === 'vaccination');
+            const vaccinationPolicy = policyOptions.find((p: PolicyOption) => p.id === 'vaccination');
             const delayPeriod = vaccinationPolicy?.implementationDelay ?? 0;
             
             if (currentState.day > currentState.vaccinationStartDay + delayPeriod) {
