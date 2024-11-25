@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { SimulationState, SimulationConfig, PolicyOption } from '../types';
-import { calculateDisease } from '../utils/disease';
-import { calculateEconomicImpact } from '../utils/economics';
+import { SimulationState, SimulationConfig, PolicyOption } from '../../../types';
+import { calculateDisease } from '../../disease/utils/disease';
+import { calculateEconomicImpact } from '../../economics/utils/economics';
 import { getInitialState } from '../utils/state';
-import { policyOptions } from '../data/policyDefinitions.ts';
+import { policyOptions } from '../../../data/policyDefinitions';
 import { VACCINATION_CONSTANTS, SIMULATION_DEFAULTS } from '../utils/constants';
 
 export function useSimulation() {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SimulationState, SimulationConfig } from '../types';
+import { SimulationState, SimulationConfig } from '../../types';
 import { Users, Heart, DollarSign, Activity, UserCheck, AlertTriangle, Shield, Syringe, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 
 interface DashboardProps {
@@ -126,8 +126,6 @@ export default function Dashboard({ state, config }: DashboardProps) {
                 {((state.exposed / state.population) * 100).toFixed(1)}% of population
               </p>
             </div>
-
-            
 
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center space-x-2 text-blue-600">

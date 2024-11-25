@@ -1,5 +1,5 @@
-import { PolicyOption } from '../types';
-import { policyOptions } from '../data/policyDefinitions';
+import { PolicyOption } from '../../../types';
+import { policyOptions } from '../../../data/policyDefinitions';
 
 interface PolicyEffects {
   contactReduction: number;

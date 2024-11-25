@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp, Activity } from 'lucide-react';
-import { TimeSeriesDataPoint, SimulationConfig } from '../types';
+import { TimeSeriesDataPoint, SimulationConfig } from '../../types';
 import { format } from 'date-fns';
 
 interface StatisticsGraphsProps {
@@ -285,4 +285,4 @@ export default function StatisticsGraphs({ data, config, onDateDisplayChange }: 
       </div>
     </div>
   );
-} 
+}

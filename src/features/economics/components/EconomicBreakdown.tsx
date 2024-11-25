@@ -1,7 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DollarSign } from 'lucide-react';
-import { SimulationState, SimulationConfig, PolicyCost } from '../types';
-import { policyOptions } from '../data/policyDefinitions';
+import { SimulationState, SimulationConfig, PolicyCost } from '../../../types';
+import { policyOptions } from '../../../data/policyDefinitions';
 
 interface EconomicBreakdownProps {
   state: SimulationState;

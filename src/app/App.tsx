@@ -1,12 +1,12 @@
 import { Bug, Pause, Play, RotateCcw } from 'lucide-react';
-import Dashboard from './components/Dashboard';
-import ConfigPanel from './components/ConfigPanel';
-import PathogenSelector from './components/PathogenSelector';
-import StatisticsGraphs from './components/StatisticsGraphs';
-import PolicySelector from './components/PolicySelector';
-import EconomicBreakdown from './components/EconomicBreakdown';
-import { useSimulation } from './hooks/useSimulation';
-import { Pathogen } from './types';
+import Dashboard from '../shared/components/Dashboard';
+import ConfigPanel from '../shared/components/ConfigPanel';
+import PathogenSelector from '../features/disease/components/PathogenSelector';
+import StatisticsGraphs from '../shared/components/StatisticsGraphs';
+import PolicySelector from '../features/policies/components/PolicySelector';
+import EconomicBreakdown from '../features/economics/components/EconomicBreakdown';
+import { useSimulation } from '../features/simulation/hooks/useSimulation';
+import { Pathogen } from '../types';
 
 function App() {
   const { 

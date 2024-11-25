@@ -1,4 +1,4 @@
-import { SimulationState, SimulationConfig } from '../types';
+import { SimulationState, SimulationConfig } from '../../../types';
 
 export function getInitialState(config: SimulationConfig): SimulationState {
   // Validate config parameters to prevent division by zero

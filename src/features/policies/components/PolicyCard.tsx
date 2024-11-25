@@ -1,5 +1,5 @@
-import { PolicyOption } from '../types';
-import { getAssetPath } from '../utils/assetHelpers';
+import { PolicyOption } from '../../../types';
+import { getAssetPath } from '../../../shared/utils/assetHelpers';
 
 interface PolicyCardProps {
   policy: PolicyOption;
@@ -112,4 +112,4 @@ export function PolicyCard({ policy, onSelect, isUsed, isActive }: PolicyCardPro
       </div>
     </button>
   );
-} 
+}

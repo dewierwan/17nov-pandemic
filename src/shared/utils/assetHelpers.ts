@@ -10,4 +10,4 @@ export function getAssetPath(path: string): string {
   
   // Combine the paths ensuring single slash between segments
   return `${cleanBase}/${cleanPath}`;
-} 
+}

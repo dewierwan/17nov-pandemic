@@ -1,5 +1,5 @@
-import { SimulationState, SimulationConfig } from '../types';
-import { calculatePolicyEffects } from './policyCalculations';
+import { SimulationState, SimulationConfig } from '../../../types';
+import { calculatePolicyEffects } from '../../policies/utils/policyCalculations';
 
 interface DiseaseTransitions {
   newExposed: number;

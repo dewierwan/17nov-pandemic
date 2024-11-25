@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Shield, ChevronDown, ChevronUp } from 'lucide-react';
-import { policyOptions } from '../data/policyDefinitions';
-import { PolicyOption } from '../types';
+import { policyOptions } from '../../../data/policyDefinitions';
+import { PolicyOption } from '../../../types';
 import { PolicyCard } from './PolicyCard';
 
 interface PolicySelectorProps {

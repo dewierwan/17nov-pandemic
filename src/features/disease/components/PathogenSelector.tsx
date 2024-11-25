@@ -1,8 +1,8 @@
 import { Shield, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
-import { Pathogen } from '../types';
-import { pathogenOptions } from '../data/pathogenDefinitions';
-import { getAssetPath } from '../utils/assetHelpers';
+import { Pathogen } from '../../../types';
+import { pathogenOptions } from '../../../data/pathogenDefinitions';
+import { getAssetPath } from '../../../shared/utils/assetHelpers';
 
 interface PathogenSelectorProps {
   onSelectPathogen: (pathogen: Pathogen) => void;
@@ -69,4 +69,4 @@ export default function PathogenSelector({ onSelectPathogen, disabled }: Pathoge
       )}
     </div>
   );
-} 
+}

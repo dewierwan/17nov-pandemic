@@ -1,5 +1,5 @@
-import { SimulationState, SimulationConfig } from '../types';
-import { policyOptions } from '../data/policyDefinitions';
+import { SimulationState, SimulationConfig } from '../../../types';
+import { policyOptions } from '../../../data/policyDefinitions';
 
 export function calculateEconomicImpact(
   state: SimulationState, 

@@ -27,4 +27,4 @@ export default function Tooltip({ text }: TooltipProps) {
       )}
     </div>
   );
-} 
+}

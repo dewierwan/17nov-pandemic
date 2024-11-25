@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Settings, ChevronDown, ChevronUp } from 'lucide-react';
-import { SimulationConfig } from '../types';
+import { SimulationConfig } from '../../types';
 import Tooltip from './Tooltip';
 
 interface ConfigPanelProps {
@@ -147,7 +147,6 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
       
       {isExpanded && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          
           
           <div>
             <label className="text-sm font-medium text-gray-700 flex items-center">

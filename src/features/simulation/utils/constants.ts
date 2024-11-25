@@ -15,4 +15,4 @@ export const SIMULATION_DEFAULTS = {
   CONTACTS_PER_DAY: 10,
   TRANSMISSION_PROBABILITY: 0.03,
   LATENT_PERIOD: 5
-} as const; 
+} as const;
