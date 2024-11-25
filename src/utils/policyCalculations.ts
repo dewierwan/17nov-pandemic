@@ -59,4 +59,4 @@ export function isPolicyActive(
   activePolicies: Set<string>
 ): boolean {
   return activePolicies.has(policy.id);
-} 
+}

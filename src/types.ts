@@ -61,7 +61,6 @@ export interface PolicyOption {
   name: string;
   description: string;
   economicImpact: number;
-  socialCost: number;
   implementationDelay: number;
   oneTime: boolean;
   contactReduction?: number;

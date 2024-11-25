@@ -7,7 +7,6 @@ export const policyOptions: PolicyOption[] = [
     description: 'Require masks in all public spaces.',
     economicImpact: 0,
     transmissionReduction: 0.3,
-    socialCost: 0,
     implementationDelay: 3,
     dailyCostPerPerson: 2,
     oneTime: false
@@ -19,7 +18,6 @@ export const policyOptions: PolicyOption[] = [
     economicImpact: 0,
     contactReduction: 0.8,
     exposedDetectionRate: 0.5,
-    socialCost: 0,
     implementationDelay: 5,
     dailyCostPerPerson: 5,
     dailyCostPerCase: 200,
@@ -31,7 +29,6 @@ export const policyOptions: PolicyOption[] = [
     description: 'Launch an immediate vaccination program.',
     economicImpact: 0,
     vaccinationRate: 0.01,
-    socialCost: 0,
     implementationDelay: 100,
     costPerVaccination: 20,
     oneTime: true
@@ -42,7 +39,6 @@ export const policyOptions: PolicyOption[] = [
     description: 'Implement a complete lockdown of non-essential activities.',
     economicImpact: 0,
     contactReduction: 0.95,
-    socialCost: 0,
     implementationDelay: 10,
     dailyCostPerPerson: 100,
     oneTime: false
