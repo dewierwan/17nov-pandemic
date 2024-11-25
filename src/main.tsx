@@ -4,7 +4,6 @@ import App from './App.tsx';
 import './index.css';
 
 const rootElement = document.getElementById('root');
-console.log('Root element:', rootElement);
 
 if (!rootElement) {
   console.error('Failed to find root element');
@@ -14,5 +13,4 @@ if (!rootElement) {
       <App />
     </StrictMode>
   );
-  console.log('App mounted');
 }
