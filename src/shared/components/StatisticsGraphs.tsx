@@ -59,6 +59,10 @@ const CustomTooltip = ({ active, payload, label, useDates, startDate }: CustomTo
 };
 
 export default function StatisticsGraphs({ data, config, onDateDisplayChange }: StatisticsGraphsProps) {
+  if (data.length <= 1) {
+    return null;
+  }
+
   const [view, setView] = useState<'daily' | 'cumulative'>('daily');
 
   // Shared formatting functions

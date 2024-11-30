@@ -3,6 +3,7 @@ import { Shield, ChevronDown, ChevronUp } from 'lucide-react';
 import { policyOptions } from '../../../data/policyDefinitions';
 import { PolicyOption } from '../../../types';
 import { PolicyCard } from './PolicyCard';
+import { useSimulationStore } from '../../../features/simulation/store/simulationStore';
 
 interface PolicySelectorProps {
   onSelectPolicy: (policy: PolicyOption) => void;
@@ -12,6 +13,11 @@ interface PolicySelectorProps {
 
 export default function PolicySelector({ onSelectPolicy, usedPolicies, activePolicies }: PolicySelectorProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const { state } = useSimulationStore();
+
+  if (!state.hasStarted) {
+    return null;
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">

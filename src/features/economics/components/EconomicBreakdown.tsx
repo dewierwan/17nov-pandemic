@@ -17,6 +17,10 @@ const formatMoney = (amount: number) => {
 };
 
 export default function EconomicBreakdown({ state }: EconomicBreakdownProps) {
+  if (!state.hasStarted) {
+    return null;
+  }
+
   const data = [
     {
       name: 'Deaths',
