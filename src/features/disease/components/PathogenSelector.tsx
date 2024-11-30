@@ -60,7 +60,7 @@ export default function PathogenSelector({ onSelectPathogen, disabled, selectedT
                     : 'bg-gray-100 text-gray-600 hover:bg-red-50'
                 }`}
               >
-                Custom Threat
+                Custom Parameters
               </button>
               <button
                 onClick={handleMysteryThreatSelect}
@@ -70,12 +70,12 @@ export default function PathogenSelector({ onSelectPathogen, disabled, selectedT
                     : 'bg-gray-100 text-gray-600 hover:bg-red-50'
                 }`}
               >
-                Mystery Threat
+                Mystery Pathogen
               </button>
             </div>
             <p className="text-sm text-gray-600">
-              {selectedThreatType === 'known' && "Select from historically documented pathogens with known characteristics."}
-              {selectedThreatType === 'custom' && "Create a custom pathogen or modify existing ones to explore different scenarios."}
+              {selectedThreatType === 'known' && "Select from known historical or contemporary pathogens."}
+              {selectedThreatType === 'custom' && "Customize pathogen parameters to explore different scenarios."}
               {selectedThreatType === 'mystery' && "Face an unknown pathogen with characteristics that are revealed over time."}
             </p>
           </div>
@@ -108,14 +108,6 @@ export default function PathogenSelector({ onSelectPathogen, disabled, selectedT
                   </div>
                   <h3 className="font-semibold">{pathogen.name}</h3>
                   <p className="text-sm text-gray-600 mt-1">{pathogen.description}</p>
-                  {selectedThreatType === 'custom' && (
-                    <div className="mt-2 text-sm text-gray-500 space-y-1">
-                      <p>Transmission rate: {(pathogen.transmissionProbability * 100).toFixed(1)}%</p>
-                      <p>Incubation period: {pathogen.latentPeriod} days</p>
-                      <p>Infectious period: {pathogen.infectiousPeriod} days</p>
-                      <p>Fatality rate: {(pathogen.mortalityRate * 100).toFixed(1)}%</p>
-                    </div>
-                  )}
                 </button>
               ))}
             </div>

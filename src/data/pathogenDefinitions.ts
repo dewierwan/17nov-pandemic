@@ -36,8 +36,7 @@ export const pathogenOptions: Pathogen[] = [
     latentPeriod: 5,                // ~5 days incubation
     infectiousPeriod: 10,                // ~8 days infectious period
     mortalityRate: 0.01             // ~1% IFR
-  }
-  /*
+  },
   {
     id: 'omicron',
     name: 'SARS-CoV-2 Omicron',
@@ -56,5 +55,4 @@ export const pathogenOptions: Pathogen[] = [
     infectiousPeriod: 3650,             // Long-term infection (~10 years without treatment)
     mortalityRate: 0.95             // High mortality without treatment
   }
-    */
 ]; 
