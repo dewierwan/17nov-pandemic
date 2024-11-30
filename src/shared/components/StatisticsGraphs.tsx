@@ -93,12 +93,15 @@ export default function StatisticsGraphs({ data, config, onDateDisplayChange }: 
   const dailyDataLines = useMemo(() => [
     { key: 'exposed', name: 'Newly Exposed', color: '#F59E0B', yAxisId: 'left' },
     { key: 'newCases', name: 'Newly Infectious', color: '#3B82F6', yAxisId: 'left' },
+    { key: 'newRecovered', name: 'Newly Recovered', color: '#10B981', yAxisId: 'left' },
     { key: 'newDeaths', name: 'New Deaths', color: '#DC2626', yAxisId: 'right' }
   ], []);
 
-  const [visibleLines, setVisibleLines] = useState<Set<string>>(
-    new Set([...cumulativeDataLines, ...dailyDataLines].map(line => line.key))
-  );
+  // Initialize visibleLines without 'susceptible'
+  const [visibleLines, setVisibleLines] = useState<Set<string>>(() => {
+    const allLines = [...cumulativeDataLines, ...dailyDataLines].map(line => line.key);
+    return new Set(allLines.filter(key => key !== 'susceptible'));
+  });
 
   // Calculate daily changes
   const dailyData = useMemo(() => {
@@ -108,6 +111,7 @@ export default function StatisticsGraphs({ data, config, onDateDisplayChange }: 
           day: point.day,
           exposed: 0,
           newCases: 0,
+          newRecovered: 0,
           newDeaths: 0
         };
       }
@@ -116,6 +120,7 @@ export default function StatisticsGraphs({ data, config, onDateDisplayChange }: 
         day: point.day,
         exposed: Math.max(0, point.exposed - prevPoint.exposed),
         newCases: Math.max(0, point.infected - prevPoint.infected),
+        newRecovered: Math.max(0, point.recovered - prevPoint.recovered),
         newDeaths: point.deceased - prevPoint.deceased
       };
     });
