@@ -86,7 +86,7 @@ function App() {
       </header>
 
       <main className="max-w-7xl mx-auto py-6 space-y-6 px-4">
-        {!state.isRunning && (
+        {!state.hasStarted && (
           <>
             <PathogenSelector
               onSelectPathogen={handlePathogenSelect}

@@ -14,6 +14,7 @@ export interface SimulationState {
   herdImmunityThreshold: number;
   immunityLevel: number;
   isRunning: boolean;
+  hasStarted: boolean;
   timeSeriesData: TimeSeriesDataPoint[];
   totalCosts: number;
   deathCosts: number;

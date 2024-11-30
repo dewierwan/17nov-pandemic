@@ -22,6 +22,7 @@ interface SimulationStore {
   updateConfig: (newConfig: SimulationConfig) => void;
   implementPolicy: (policy: PolicyOption) => void;
   tick: () => void;
+  stopSimulation: () => void;
 }
 
 export const useSimulationStore = create<SimulationStore>((set, get) => ({
@@ -61,7 +62,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   reset: () => {
     const { config } = get();
     set({
-      state: getInitialState(config),
+      state: {
+        ...getInitialState(config),
+        hasStarted: false
+      },
       usedPolicies: new Set(),
       activePolicies: new Set()
     });
@@ -69,21 +73,24 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
 
   toggleSimulation: () => {
     const { state, config } = get();
-    const newState = { ...state, isRunning: !state.isRunning };
-    set({ state: newState });
-
-    // Clear existing interval if any
-    if (get().simulationInterval !== undefined) {
-      clearInterval(get().simulationInterval);
-      set({ simulationInterval: undefined });
-    }
-
-    // Start new interval if simulation is running
-    if (newState.isRunning) {
+    
+    if (state.isRunning) {
+      // If running, stop it
+      get().stopSimulation();
+    } else {
+      // If stopped, start it
       const interval = window.setInterval(() => {
         get().tick();
       }, 1000 / config.daysPerSecond);
-      set({ simulationInterval: interval });
+      
+      set({ 
+        simulationInterval: interval,
+        state: { 
+          ...state, 
+          isRunning: true,
+          hasStarted: true
+        }
+      });
     }
   },
 
@@ -213,5 +220,19 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     }];
 
     set({ state: newState });
+  },
+
+  stopSimulation: () => {
+    const { simulationInterval } = get();
+    if (simulationInterval) {
+      window.clearInterval(simulationInterval);
+    }
+    set({ 
+      simulationInterval: undefined,
+      state: { 
+        ...get().state, 
+        isRunning: false,
+      }
+    });
   }
 }));
