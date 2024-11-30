@@ -1,7 +1,15 @@
-import { useState } from 'react';
-import { Users, DollarSign, Users2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Users, DollarSign, Users2, Globe } from 'lucide-react';
 import { SimulationConfig } from '../../types';
 import Tooltip from './Tooltip';
+import Select, { SingleValue } from 'react-select';
+import { fetchCountryList, fetchCountryData } from '../../services/countryService';
+
+// Define the type for our select options
+type CountryOption = {
+  value: string;
+  label: string;
+};
 
 interface LocalContextProps {
   config: SimulationConfig;
@@ -9,11 +17,15 @@ interface LocalContextProps {
   disabled: boolean;
 }
 
+// Add GDP multiplier constant at the top of the file
+const GDP_TO_DEATH_COST_MULTIPLIER = 40;
+
 // Add tooltips configuration
 const tooltips = {
   population: "The total number of people in the simulated population.",
-  economicCostPerDeath: "The estimated economic impact of each death, including healthcare costs and lost productivity.",
+  economicCostPerDeath: `The estimated economic impact of each death, including healthcare costs and lost productivity. By default, this is set to ${GDP_TO_DEATH_COST_MULTIPLIER}x the country's GDP per capita.`,
   contactsPerDay: "Average number of close contacts each person has per day that could lead to disease transmission.",
+  country: "Select a country to automatically set population and economic parameters",
 };
 
 const formatNumber = (num: number) => {
@@ -74,6 +86,19 @@ const populationHandlers = createLogSliderHandlers({
 
 export default function LocalContext({ config, onConfigChange, disabled }: LocalContextProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [countryOptions, setCountryOptions] = useState<CountryOption[]>([]);
+  const [isLoadingCountry, setIsLoadingCountry] = useState(false);
+
+  useEffect(() => {
+    async function loadCountries() {
+      const countries = await fetchCountryList();
+      setCountryOptions(countries.map(country => ({
+        value: country.code,
+        label: country.name
+      })));
+    }
+    loadCountries();
+  }, []);
 
   const handleChange = (field: keyof SimulationConfig, value: string) => {
     const numValue = Number(value);
@@ -92,6 +117,34 @@ export default function LocalContext({ config, onConfigChange, disabled }: Local
     }
   };
 
+  const handleCountryChange = async (selectedOption: SingleValue<CountryOption>) => {
+    if (!selectedOption) {
+      onConfigChange({
+        ...config,
+        selectedCountry: undefined
+      });
+      return;
+    }
+
+    setIsLoadingCountry(true);
+    try {
+      const countryData = await fetchCountryData(selectedOption.value);
+      
+      if (countryData.population && countryData.gdpPerCapita) {
+        onConfigChange({
+          ...config,
+          population: countryData.population,
+          economicCostPerDeath: countryData.gdpPerCapita * GDP_TO_DEATH_COST_MULTIPLIER,
+          selectedCountry: selectedOption.value
+        });
+      }
+    } catch (error) {
+      console.error('Error loading country data:', error);
+    } finally {
+      setIsLoadingCountry(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
       <button 
@@ -107,6 +160,27 @@ export default function LocalContext({ config, onConfigChange, disabled }: Local
       {isExpanded && (
         <div className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 flex items-center">
+                <Tooltip text={tooltips.country} />
+                <Globe className="w-4 h-4 mr-1 text-gray-500" />
+                Country
+              </label>
+              <Select<CountryOption>
+                className="mt-1"
+                options={countryOptions}
+                value={config.selectedCountry ? {
+                  value: config.selectedCountry,
+                  label: countryOptions.find(opt => opt.value === config.selectedCountry)?.label || ''
+                } : null}
+                onChange={handleCountryChange}
+                isDisabled={disabled || isLoadingCountry}
+                isLoading={isLoadingCountry}
+                isClearable
+                placeholder="Select a country..."
+              />
+            </div>
+
             <div>
               <label className="text-sm font-medium text-gray-700 flex items-center">
                 <Tooltip text={tooltips.population} />

@@ -13,7 +13,9 @@
     "autoprefixer",
     "postcss",
     "linecap",
-    "linejoin"
+    "linejoin",
+    "ntvs",
+    "njsproj"
   ],
   "ignorePaths": [
     "node_modules/**",

@@ -1,10 +1,18 @@
 import { create } from 'zustand';
-import { SimulationState, SimulationConfig, PolicyOption } from '../../../types';
+import { SimulationState, SimulationConfig, PolicyOption, NewsStory } from '../../../types';
 import { getInitialState } from '../utils/state';
 import { calculateDisease } from '../../disease/utils/disease';
 import { calculateEconomicImpact } from '../../economics/utils/economics';
 import { policyOptions } from '../../../data/policyDefinitions';
 import { VACCINATION_CONSTANTS, SIMULATION_DEFAULTS } from '../utils/constants';
+import { sendMessageToClaude } from '../../../services/claudeService';
+
+interface PolicyHistory {
+  id: string;
+  name: string;
+  startDay: number;
+  endDay?: number;
+}
 
 interface SimulationStore {
   // State
@@ -14,6 +22,10 @@ interface SimulationStore {
   activePolicies: Set<string>;
   simulationInterval: number | undefined;
   policyStartDays: Map<string, number>;
+  aiResponse: string | null;
+  isLoadingAi: boolean;
+  policyHistory: PolicyHistory[];
+  newsHistory: NewsStory[];
 
   // Actions
   setConfig: (newConfig: SimulationConfig) => void;
@@ -24,6 +36,7 @@ interface SimulationStore {
   implementPolicy: (policy: PolicyOption) => void;
   tick: () => void;
   stopSimulation: () => void;
+  sendMessageToAI: (message: string, requestType?: 'advice' | 'news') => Promise<void>;
 }
 
 export const useSimulationStore = create<SimulationStore>((set, get) => ({
@@ -63,6 +76,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   activePolicies: new Set<string>(),
   simulationInterval: undefined,
   policyStartDays: new Map(),
+  aiResponse: null,
+  isLoadingAi: false,
+  policyHistory: [],
+  newsHistory: [],
 
   setConfig: (newConfig) => set({ config: newConfig }),
   setState: (newState) => set({ state: newState }),
@@ -79,6 +96,8 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       usedPolicies: new Set(),
       activePolicies: new Set(),
       policyStartDays: new Map(),
+      policyHistory: [],
+      newsHistory: [],
     });
   },
 
@@ -141,33 +160,63 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   implementPolicy: (policy) => {
     if (policy.oneTime) {
       if (policy.id === 'vaccination') {
-        set((state) => ({
-          state: {
-            ...state.state,
-            isVaccinationStarted: true,
-            vaccinationStartDay: state.state.day,
-            totalCosts: state.state.totalCosts + VACCINATION_CONSTANTS.INITIAL_COST
-          },
-          usedPolicies: new Set([...state.usedPolicies, policy.id])
-        }));
+        set((state) => {
+          // Add to policy history
+          const newHistory = [...state.policyHistory, {
+            id: policy.id,
+            name: policy.name,
+            startDay: state.state.day
+          }];
+
+          return {
+            state: {
+              ...state.state,
+              isVaccinationStarted: true,
+              vaccinationStartDay: state.state.day,
+              totalCosts: state.state.totalCosts + VACCINATION_CONSTANTS.INITIAL_COST
+            },
+            usedPolicies: new Set([...state.usedPolicies, policy.id]),
+            policyHistory: newHistory
+          };
+        });
       }
     } else {
       set((state) => {
         const newActivePolicies = new Set(state.activePolicies);
         const newPolicyStartDays = new Map(state.policyStartDays);
+        const newHistory = [...state.policyHistory];
         
         if (state.activePolicies.has(policy.id)) {
+          // Policy is being deactivated
           newActivePolicies.delete(policy.id);
           newPolicyStartDays.delete(policy.id);
+          
+          // Find the most recent history entry for this policy and set its end day
+          const lastIndex = newHistory.map(p => p.id).lastIndexOf(policy.id);
+          if (lastIndex !== -1) {
+            newHistory[lastIndex] = {
+              ...newHistory[lastIndex],
+              endDay: state.state.day
+            };
+          }
         } else {
+          // Policy is being activated
           newActivePolicies.add(policy.id);
           newPolicyStartDays.set(policy.id, state.state.day);
+          
+          // Add new history entry
+          newHistory.push({
+            id: policy.id,
+            name: policy.name,
+            startDay: state.state.day
+          });
         }
         
         return {
           activePolicies: newActivePolicies,
           policyStartDays: newPolicyStartDays,
           usedPolicies: new Set([...state.usedPolicies, policy.id]),
+          policyHistory: newHistory,
           state: {
             ...state.state,
             isRunning: state.state.isRunning
@@ -272,5 +321,45 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         isRunning: false,
       }
     });
-  }
+  },
+
+  sendMessageToAI: async (message: string, requestType: 'advice' | 'news' = 'advice') => {
+    const { state, activePolicies, policyHistory } = get();
+    set({ isLoadingAi: true });
+    try {
+      const response = await sendMessageToClaude(message, state, activePolicies, policyHistory);
+      
+      if (requestType === 'news') {
+        try {
+          const newsData = JSON.parse(response);
+          const newsStory: NewsStory = {
+            ...newsData,
+            day: state.day
+          };
+          set(state => ({ 
+            newsHistory: [...state.newsHistory, newsStory],
+            aiResponse: newsData.content,
+            isLoadingAi: false 
+          }));
+        } catch (error) {
+          console.error('Error parsing news response:', error);
+          set({ 
+            aiResponse: response,
+            isLoadingAi: false 
+          });
+        }
+      } else {
+        set({ 
+          aiResponse: response,
+          isLoadingAi: false 
+        });
+      }
+    } catch (error) {
+      console.error('Error sending message to AI:', error);
+      set({ 
+        aiResponse: 'Error communicating with AI assistant',
+        isLoadingAi: false 
+      });
+    }
+  },
 }));

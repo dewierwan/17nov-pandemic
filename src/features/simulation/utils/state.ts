@@ -59,6 +59,7 @@ export function getInitialState(config: SimulationConfig): SimulationState {
     latentPeriod: config.latentPeriod,
     sigma,
     isGameOver: false,
-    hasWon: false
+    hasWon: false,
+    selectedCountry: config.selectedCountry
   };
 }

@@ -31,6 +31,7 @@ export interface SimulationState {
   sigma: number;
   isGameOver: boolean;
   hasWon: boolean;
+  selectedCountry?: string;
 }
 
 export interface TimeSeriesDataPoint {
@@ -61,6 +62,7 @@ export interface SimulationConfig {
   enableWinLose: boolean;
   maxDeathPercentage: number;
   maxEconomicCost: number;
+  selectedCountry?: string;
 }
 
 export interface PolicyOption {
@@ -108,3 +110,10 @@ export interface Policy {
 }
 
 export type ThreatType = 'known' | 'custom' | 'mystery';
+
+export interface NewsStory {
+  headline: string;
+  newspaper: string;
+  content: string;
+  day: number;
+}

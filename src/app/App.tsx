@@ -10,6 +10,7 @@ import { Pathogen, SimulationConfig, ThreatType } from '../types';
 import GameOver from '../shared/components/GameOver';
 import SimulationSettings from '../shared/components/SimulationSettings';
 import LocalContext from '../shared/components/LocalContext';
+import BreakingNews from '../shared/components/BreakingNews';
 import { useState } from 'react';
 
 function App() {
@@ -176,6 +177,8 @@ function App() {
           <GameOver state={state} onTryAgain={handleReset} />
         )}
       </main>
+
+      <BreakingNews />
     </div>
   );
 }
