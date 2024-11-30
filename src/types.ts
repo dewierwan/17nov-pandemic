@@ -106,3 +106,5 @@ export interface Policy {
   oneTime: boolean;
   effect: (state: any, config: any) => any; // You may want to properly type these based on your state and config types
 }
+
+export type ThreatType = 'known' | 'custom' | 'mystery';

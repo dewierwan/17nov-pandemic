@@ -1,15 +1,16 @@
 import { Bug, Pause, Play, RotateCcw } from 'lucide-react';
 import Dashboard from '../shared/components/Dashboard';
-import ConfigPanel from '../shared/components/ConfigPanel';
+import DiseaseParameters from '../shared/components/DiseaseParameters';
 import PathogenSelector from '../features/disease/components/PathogenSelector';
 import StatisticsGraphs from '../shared/components/StatisticsGraphs';
 import PolicySelector from '../features/policies/components/PolicySelector';
 import EconomicBreakdown from '../features/economics/components/EconomicBreakdown';
 import { useSimulation } from '../features/simulation/hooks/useSimulation';
-import { Pathogen } from '../types';
+import { Pathogen, SimulationConfig, ThreatType } from '../types';
 import GameOver from '../shared/components/GameOver';
 import SimulationSettings from '../shared/components/SimulationSettings';
 import LocalContext from '../shared/components/LocalContext';
+import { useState } from 'react';
 
 function App() {
   const { 
@@ -23,7 +24,11 @@ function App() {
     activePolicies 
   } = useSimulation();
 
+  const [selectedThreatType, setSelectedThreatType] = useState<'known' | 'custom' | 'mystery'>('known');
+  const [selectedPathogenId, setSelectedPathogenId] = useState<string>();
+
   const handlePathogenSelect = (pathogen: Pathogen) => {
+    setSelectedPathogenId(pathogen.id);
     updateConfig({
       ...config,
       transmissionProbability: pathogen.transmissionProbability,
@@ -39,6 +44,35 @@ function App() {
       useDates,
       startDate: useDates ? (config.startDate || new Date()) : undefined
     });
+  };
+
+  const handleReset = () => {
+    reset();
+    setSelectedPathogenId(undefined);
+  };
+
+  const handleConfigChange = (newConfig: Partial<SimulationConfig>) => {
+    const diseaseParamsChanged = [
+      'transmissionProbability',
+      'latentPeriod',
+      'infectiousPeriod',
+      'mortalityRate'
+    ].some(param => param in newConfig);
+
+    if (diseaseParamsChanged) {
+      setSelectedPathogenId(undefined);
+    }
+    
+    updateConfig({
+      ...config,
+      ...newConfig
+    });
+  };
+
+  const handleThreatTypeChange = (type: ThreatType) => {
+    setSelectedThreatType(type);
+    // Clear selected pathogen when switching modes
+    setSelectedPathogenId(undefined);
   };
 
   return (
@@ -77,7 +111,7 @@ function App() {
               </button>
 
               <button
-                onClick={reset}
+                onClick={handleReset}
                 className="flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
               >
                 <RotateCcw className="w-5 h-5" />
@@ -93,35 +127,43 @@ function App() {
           <>
             <SimulationSettings
               config={config}
-              onConfigChange={updateConfig}
+              onConfigChange={handleConfigChange}
               disabled={state.isRunning}
             />
             <LocalContext
               config={config}
-              onConfigChange={updateConfig}
+              onConfigChange={handleConfigChange}
               disabled={state.isRunning}
             />
             <PathogenSelector
               onSelectPathogen={handlePathogenSelect}
               disabled={state.isRunning}
+              selectedThreatType={selectedThreatType}
+              onThreatTypeChange={handleThreatTypeChange}
+              selectedPathogenId={selectedPathogenId}
             />
-            <ConfigPanel
-              config={config}
-              onConfigChange={updateConfig}
-              disabled={state.isRunning}
-            />
+            {selectedThreatType === 'custom' && (
+              <DiseaseParameters
+                config={config}
+                onConfigChange={handleConfigChange}
+                disabled={state.hasStarted}
+              />
+            )}
           </>
         )}
         
-        <Dashboard 
-          state={state} 
-          config={config}
-        />
-        <StatisticsGraphs 
-          data={state.timeSeriesData} 
-          config={config}
-          onDateDisplayChange={handleDateDisplayChange}
-        />
+        {state.hasStarted && (
+          <>
+            <Dashboard 
+              state={state} 
+            />
+            <StatisticsGraphs 
+              data={state.timeSeriesData} 
+              config={config}
+              onDateDisplayChange={handleDateDisplayChange}
+            />
+          </>
+        )}
         
         <PolicySelector 
           onSelectPolicy={implementPolicy}
@@ -131,7 +173,7 @@ function App() {
         <EconomicBreakdown state={state} config={config} />
 
         {state.isGameOver && (
-          <GameOver state={state} onTryAgain={reset} />
+          <GameOver state={state} onTryAgain={handleReset} />
         )}
       </main>
     </div>

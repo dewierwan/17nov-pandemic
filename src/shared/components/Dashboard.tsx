@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { SimulationState, SimulationConfig } from '../../types';
+import { SimulationState } from '../../types';
 import { Users, Heart, DollarSign, Activity, UserCheck, AlertTriangle, Shield, Syringe, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 
 interface DashboardProps {
   state: SimulationState;
-  config: SimulationConfig;
 }
 
 const formatNumber = (num: number) => {
@@ -22,7 +21,7 @@ const formatMoney = (amount: number) => {
   return `$${amount.toFixed(0)}`;
 };
 
-export default function Dashboard({ state, config }: DashboardProps) {
+export default function Dashboard({ state }: DashboardProps) {
   const [isStatsExpanded, setIsStatsExpanded] = useState(true);
 
   const totalInfectionPercentage = ((state.totalCases / state.population) * 100).toFixed(1);
@@ -53,33 +52,6 @@ export default function Dashboard({ state, config }: DashboardProps) {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             
-          <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center space-x-2 text-purple-600">
-                <Activity className="w-5 h-5" />
-                <h3 className="font-semibold">Basic Parameters</h3>
-              </div>
-              <div className="space-y-1 mt-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">IFR:</span>
-                  <span className="font-bold">
-                    {(config.mortalityRate * 100).toFixed(1)}%
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">R₀:</span>
-                  <span className="font-bold">
-                    {(state.beta / state.gamma).toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Herd Immunity:</span>
-                  <span className="font-bold">
-                    {(state.herdImmunityThreshold * 100).toFixed(1)}%
-                  </span>
-                </div>
-              </div>
-            </div>
-
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center space-x-2 text-purple-600">
                 <Activity className="w-5 h-5" />
