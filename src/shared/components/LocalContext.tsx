@@ -4,6 +4,7 @@ import { SimulationConfig } from '../../types';
 import Tooltip from './Tooltip';
 import Select, { SingleValue } from 'react-select';
 import { fetchCountryList, fetchCountryData } from '../../services/countryService';
+import { createLogSliderHandlers } from '../utils/sliderHelpers';
 
 // Define the type for our select options
 type CountryOption = {
@@ -43,45 +44,15 @@ const formatMoney = (amount: number) => {
   return `$${amount.toFixed(0)}`;
 };
 
-// Create a generic function for logarithmic slider conversions
-const createLogSliderHandlers = (config: {
-  minValue: number;
-  maxValue: number;
-  minSlider?: number;
-  maxSlider?: number;
-}) => {
-  const {
-    minValue,
-    maxValue,
-    minSlider = 0,
-    maxSlider = 100
-  } = config;
-
-  const valueToSlider = (value: number) => {
-    if (value <= minValue) return minSlider;
-    if (value >= maxValue) return maxSlider;
-    const minLog = Math.log10(minValue);
-    const maxLog = Math.log10(maxValue);
-    const scale = (maxLog - minLog) / (maxSlider - minSlider);
-    return Math.round((Math.log10(value) - minLog) / scale) + minSlider;
-  };
-
-  const sliderToValue = (slider: number) => {
-    if (slider <= minSlider) return minValue;
-    if (slider >= maxSlider) return maxValue;
-    const minLog = Math.log10(minValue);
-    const maxLog = Math.log10(maxValue);
-    const scale = (maxLog - minLog) / (maxSlider - minSlider);
-    return Math.pow(10, minLog + ((slider - minSlider) * scale));
-  };
-
-  return { valueToSlider, sliderToValue };
-};
-
-// Create specific handlers for population
+// Create specific handlers for population and economic cost
 const populationHandlers = createLogSliderHandlers({
   minValue: 1e3,  // 1 thousand
   maxValue: 1e10, // 10 billion
+});
+
+const economicHandlers = createLogSliderHandlers({
+  minValue: 1e3,    // $1,000
+  maxValue: 8e6,    // $8 million
 });
 
 export default function LocalContext({ config, onConfigChange, disabled }: LocalContextProps) {
@@ -108,6 +79,11 @@ export default function LocalContext({ config, onConfigChange, disabled }: Local
       onConfigChange({
         ...config,
         population: populationHandlers.sliderToValue(numValue)
+      });
+    } else if (field === 'economicCostPerDeath') {
+      onConfigChange({
+        ...config,
+        economicCostPerDeath: economicHandlers.sliderToValue(numValue)
       });
     } else {
       onConfigChange({
@@ -211,9 +187,9 @@ export default function LocalContext({ config, onConfigChange, disabled }: Local
               <input
                 type="range"
                 min="0"
-                max="20000000"
-                step="100000"
-                value={config.economicCostPerDeath}
+                max="100"
+                step="1"
+                value={economicHandlers.valueToSlider(config.economicCostPerDeath)}
                 onChange={(e) => handleChange('economicCostPerDeath', e.target.value)}
                 disabled={disabled}
                 className="w-full mt-1"
