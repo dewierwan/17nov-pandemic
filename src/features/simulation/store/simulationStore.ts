@@ -38,7 +38,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     transmissionProbability: SIMULATION_DEFAULTS.TRANSMISSION_PROBABILITY,
     latentPeriod: SIMULATION_DEFAULTS.LATENT_PERIOD,
     useDates: false,
-    startDate: undefined
+    startDate: undefined,
+    enableWinLose: SIMULATION_DEFAULTS.ENABLE_WIN_LOSE,
+    maxDeathPercentage: SIMULATION_DEFAULTS.MAX_DEATH_PERCENTAGE,
+    maxEconomicCost: SIMULATION_DEFAULTS.MAX_ECONOMIC_COST
   },
   state: getInitialState({
     population: SIMULATION_DEFAULTS.POPULATION,
@@ -51,7 +54,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     transmissionProbability: SIMULATION_DEFAULTS.TRANSMISSION_PROBABILITY,
     latentPeriod: SIMULATION_DEFAULTS.LATENT_PERIOD,
     useDates: false,
-    startDate: undefined
+    startDate: undefined,
+    enableWinLose: SIMULATION_DEFAULTS.ENABLE_WIN_LOSE,
+    maxDeathPercentage: SIMULATION_DEFAULTS.MAX_DEATH_PERCENTAGE,
+    maxEconomicCost: SIMULATION_DEFAULTS.MAX_ECONOMIC_COST
   }),
   usedPolicies: new Set<string>(),
   activePolicies: new Set<string>(),
@@ -66,7 +72,9 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     set({
       state: {
         ...getInitialState(config),
-        hasStarted: false
+        hasStarted: false,
+        isGameOver: false,
+        hasWon: false
       },
       usedPolicies: new Set(),
       activePolicies: new Set(),
@@ -123,7 +131,9 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       config: updatedConfig,
       state: {
         ...getInitialState(updatedConfig),
-        isRunning: state.state.isRunning
+        isRunning: state.state.isRunning,
+        isGameOver: false,
+        hasWon: false
       }
     }));
   },
@@ -232,6 +242,20 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       economicCost: newState.totalCosts,
       exposed: newState.exposed
     }];
+
+    // Check win/lose conditions if enabled
+    if (config.enableWinLose) {
+      const deathPercentage = newState.deceased / newState.population;
+      const hasLost = deathPercentage >= config.maxDeathPercentage || 
+                     newState.totalCosts >= config.maxEconomicCost;
+      const hasWon = newState.exposed === 0 && newState.infected === 0;
+
+      if (hasLost || hasWon) {
+        newState.isGameOver = true;
+        newState.hasWon = hasWon;
+        get().stopSimulation();
+      }
+    }
 
     set({ state: newState });
   },

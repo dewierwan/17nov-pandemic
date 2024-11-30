@@ -33,6 +33,7 @@ export function getInitialState(config: SimulationConfig): SimulationState {
     herdImmunityThreshold,
     immunityLevel: 0,
     isRunning: false,
+    hasStarted: false,
     totalCosts: 0,
     deathCosts: 0,
     vaccineCosts: 0,
@@ -45,7 +46,8 @@ export function getInitialState(config: SimulationConfig): SimulationState {
       totalCases: initialInfected,
       r0: r0,
       re: r0,
-      economicCost: 0
+      economicCost: 0,
+      exposed: 0
     }],
     totalVaccinated: 0,
     dailyVaccinated: 0,
@@ -56,5 +58,7 @@ export function getInitialState(config: SimulationConfig): SimulationState {
     effectiveTransmissionRate: config.transmissionProbability,
     latentPeriod: config.latentPeriod,
     sigma,
+    isGameOver: false,
+    hasWon: false
   };
 }

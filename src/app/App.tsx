@@ -7,6 +7,7 @@ import PolicySelector from '../features/policies/components/PolicySelector';
 import EconomicBreakdown from '../features/economics/components/EconomicBreakdown';
 import { useSimulation } from '../features/simulation/hooks/useSimulation';
 import { Pathogen } from '../types';
+import GameOver from '../shared/components/GameOver';
 
 function App() {
   const { 
@@ -117,6 +118,10 @@ function App() {
           activePolicies={activePolicies}
         />
         <EconomicBreakdown state={state} config={config} />
+
+        {state.isGameOver && (
+          <GameOver state={state} onTryAgain={reset} />
+        )}
       </main>
     </div>
   );

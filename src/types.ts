@@ -29,6 +29,8 @@ export interface SimulationState {
   exposed: number;
   latentPeriod: number;
   sigma: number;
+  isGameOver: boolean;
+  hasWon: boolean;
 }
 
 export interface TimeSeriesDataPoint {
@@ -56,6 +58,9 @@ export interface SimulationConfig {
   latentPeriod: number;
   useDates: boolean;
   startDate?: Date;
+  enableWinLose: boolean;
+  maxDeathPercentage: number;
+  maxEconomicCost: number;
 }
 
 export interface PolicyOption {
