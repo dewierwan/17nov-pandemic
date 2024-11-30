@@ -41,6 +41,7 @@ export interface TimeSeriesDataPoint {
   r0: number;
   re: number;
   economicCost: number;
+  exposed: number;
 }
 
 export interface SimulationConfig {

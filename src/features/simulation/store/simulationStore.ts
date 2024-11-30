@@ -229,7 +229,8 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       totalCases: newState.totalCases,
       r0: newState.r0,
       re: newState.re,
-      economicCost: newState.totalCosts
+      economicCost: newState.totalCosts,
+      exposed: newState.exposed
     }];
 
     set({ state: newState });

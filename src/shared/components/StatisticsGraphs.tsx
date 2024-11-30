@@ -84,16 +84,16 @@ export default function StatisticsGraphs({ data, config, onDateDisplayChange }: 
   // Data lines configuration
   const cumulativeDataLines = useMemo(() => [
     { key: 'susceptible', name: 'Susceptible', color: '#8B5CF6', yAxisId: 'left' },
-    { key: 'infected', name: 'Active Cases', color: '#3B82F6', yAxisId: 'left' },
+    { key: 'exposed', name: 'Exposed', color: '#F59E0B', yAxisId: 'left' },
+    { key: 'infected', name: 'Infectious', color: '#3B82F6', yAxisId: 'left' },
     { key: 'recovered', name: 'Recovered', color: '#10B981', yAxisId: 'left' },
-    { key: 'deceased', name: 'Deceased', color: '#DC2626', yAxisId: 'left' },
-    { key: 'economicCost', name: 'Economic Cost ($)', color: '#F59E0B', yAxisId: 'right' }
+    { key: 'deceased', name: 'Deceased', color: '#DC2626', yAxisId: 'left' }
   ], []);
 
   const dailyDataLines = useMemo(() => [
-    { key: 'newCases', name: 'New Cases', color: '#3B82F6', yAxisId: 'left' },
-    { key: 'newDeaths', name: 'New Deaths', color: '#DC2626', yAxisId: 'left' },
-    { key: 'dailyEconomicCost', name: 'Daily Economic Cost', color: '#F59E0B', yAxisId: 'right' }
+    { key: 'exposed', name: 'Newly Exposed', color: '#F59E0B', yAxisId: 'left' },
+    { key: 'newCases', name: 'Newly Infectious', color: '#3B82F6', yAxisId: 'left' },
+    { key: 'newDeaths', name: 'New Deaths', color: '#DC2626', yAxisId: 'right' }
   ], []);
 
   const [visibleLines, setVisibleLines] = useState<Set<string>>(
@@ -106,17 +106,17 @@ export default function StatisticsGraphs({ data, config, onDateDisplayChange }: 
       if (index === 0) {
         return {
           day: point.day,
+          exposed: 0,
           newCases: 0,
-          newDeaths: 0,
-          dailyEconomicCost: 0
+          newDeaths: 0
         };
       }
       const prevPoint = data[index - 1];
       return {
         day: point.day,
-        newCases: point.totalCases - prevPoint.totalCases,
-        newDeaths: point.deceased - prevPoint.deceased,
-        dailyEconomicCost: point.economicCost - prevPoint.economicCost
+        exposed: Math.max(0, point.exposed - prevPoint.exposed),
+        newCases: Math.max(0, point.infected - prevPoint.infected),
+        newDeaths: point.deceased - prevPoint.deceased
       };
     });
   }, [data]);
@@ -236,9 +236,9 @@ export default function StatisticsGraphs({ data, config, onDateDisplayChange }: 
             <YAxis
               yAxisId="right"
               orientation="right"
-              tickFormatter={formatMoney}
+              tickFormatter={formatNumber}
               label={{
-                value: view === 'cumulative' ? 'Economic Cost' : 'Daily Economic Cost',
+                value: view === 'cumulative' ? 'Population' : 'Daily Deaths',
                 angle: 90,
                 position: 'insideRight',
                 offset: -45,
