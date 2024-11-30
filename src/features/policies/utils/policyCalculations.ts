@@ -10,7 +10,8 @@ interface PolicyEffects {
 
 export function calculatePolicyEffects(
   activePolicies: Set<string>,
-  state: { population: number; exposed: number; infected: number }
+  state: { population: number; exposed: number; infected: number; day: number },
+  policyStartDays: Map<string, number>
 ): PolicyEffects {
   let contactReduction = 0;
   let transmissionReduction = 0;
@@ -20,12 +21,19 @@ export function calculatePolicyEffects(
   // Calculate cumulative effects of all active policies
   activePolicies.forEach(policyId => {
     const policy = policyOptions.find(p => p.id === policyId);
+    const startDay = policyStartDays.get(policyId) || 0;
+    
     if (policy && !policy.oneTime) {
-      contactReduction += policy.contactReduction || 0;
-      transmissionReduction += policy.transmissionReduction || 0;
-      exposedDetectionRate = Math.max(exposedDetectionRate, policy.exposedDetectionRate || 0);
+      // Only apply effects if implementation delay has passed
+      const daysActive = state.day - startDay;
+      if (daysActive >= (policy.implementationDelay || 0)) {
+        contactReduction += policy.contactReduction || 0;
+        transmissionReduction += policy.transmissionReduction || 0;
+        exposedDetectionRate = Math.max(exposedDetectionRate, policy.exposedDetectionRate || 0);
+      }
       
       // Calculate daily costs based on both population and active cases
+      // Note: Costs are incurred even during implementation period
       const baseCost = (policy.dailyCostPerPerson ?? 0) * state.population;
       const caseCost = (policy.dailyCostPerCase ?? 0) * (state.exposed + state.infected);
       

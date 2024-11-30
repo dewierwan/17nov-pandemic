@@ -120,9 +120,14 @@ function calculateNewState(
 export function calculateDisease(
   state: SimulationState,
   config: SimulationConfig,
-  activePolicies: Set<string>
+  activePolicies: Set<string>,
+  policyStartDays: Map<string, number>
 ) {
-  const { contactReduction, transmissionReduction, exposedDetectionRate } = calculatePolicyEffects(activePolicies, state);
+  const { contactReduction, transmissionReduction, exposedDetectionRate } = calculatePolicyEffects(
+    activePolicies,
+    state,
+    policyStartDays
+  );
   
   // Calculate effective contacts and transmission probability
   const effectiveContacts = config.contactsPerDay * (1 - contactReduction);

@@ -13,6 +13,7 @@ interface SimulationStore {
   usedPolicies: Set<string>;
   activePolicies: Set<string>;
   simulationInterval: number | undefined;
+  policyStartDays: Map<string, number>;
 
   // Actions
   setConfig: (newConfig: SimulationConfig) => void;
@@ -55,6 +56,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   usedPolicies: new Set<string>(),
   activePolicies: new Set<string>(),
   simulationInterval: undefined,
+  policyStartDays: new Map(),
 
   setConfig: (newConfig) => set({ config: newConfig }),
   setState: (newState) => set({ state: newState }),
@@ -67,7 +69,8 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         hasStarted: false
       },
       usedPolicies: new Set(),
-      activePolicies: new Set()
+      activePolicies: new Set(),
+      policyStartDays: new Map(),
     });
   },
 
@@ -141,24 +144,34 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     } else {
       set((state) => {
         const newActivePolicies = new Set(state.activePolicies);
+        const newPolicyStartDays = new Map(state.policyStartDays);
+        
         if (state.activePolicies.has(policy.id)) {
           newActivePolicies.delete(policy.id);
+          newPolicyStartDays.delete(policy.id);
         } else {
           newActivePolicies.add(policy.id);
+          newPolicyStartDays.set(policy.id, state.state.day);
         }
+        
         return {
           activePolicies: newActivePolicies,
-          usedPolicies: new Set([...state.usedPolicies, policy.id])
+          policyStartDays: newPolicyStartDays,
+          usedPolicies: new Set([...state.usedPolicies, policy.id]),
+          state: {
+            ...state.state,
+            isRunning: state.state.isRunning
+          }
         };
       });
     }
   },
 
   tick: () => {
-    const { state, config, activePolicies } = get();
+    const { state, config, activePolicies, policyStartDays } = get();
     
     // Calculate disease progression with active policies
-    const diseaseUpdates = calculateDisease(state, config, activePolicies);
+    const diseaseUpdates = calculateDisease(state, config, activePolicies, policyStartDays);
     
     // Calculate economic impact including policy costs
     const economicUpdates = calculateEconomicImpact(
