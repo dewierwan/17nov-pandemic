@@ -73,14 +73,6 @@ export default function StatisticsGraphs({ data, config, onDateDisplayChange }: 
     return num.toFixed(0);
   }, []);
 
-  const formatMoney = useCallback((num: number) => {
-    if (num >= 1e12) return `$${(num / 1e12).toFixed(1)}T`;
-    if (num >= 1e9) return `$${(num / 1e9).toFixed(1)}B`;
-    if (num >= 1e6) return `$${(num / 1e6).toFixed(1)}M`;
-    if (num >= 1e3) return `$${(num / 1e3).toFixed(1)}K`;
-    return `$${num.toFixed(0)}`;
-  }, []);
-
   // Data lines configuration
   const cumulativeDataLines = useMemo(() => [
     { key: 'susceptible', name: 'Susceptible', color: '#8B5CF6', yAxisId: 'left' },

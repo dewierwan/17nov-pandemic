@@ -16,21 +16,6 @@ interface LogSliderConfig {
   maxSlider?: number;
 }
 
-const formatNumber = (num: number) => {
-  if (num >= 1e9) return `${(num / 1e9).toFixed(1)}B`;
-  if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
-  if (num >= 1e3) return `${(num / 1e3).toFixed(1)}K`;
-  return num.toString();
-};
-
-const formatMoney = (amount: number) => {
-  if (amount >= 1e12) return `$${(amount / 1e12).toFixed(1)} trillion`;
-  if (amount >= 1e9) return `$${(amount / 1e9).toFixed(1)} billion`;
-  if (amount >= 1e6) return `$${(amount / 1e6).toFixed(1)} million`;
-  if (amount >= 1e3) return `$${(amount / 1e3).toFixed(1)}K`;
-  return `$${amount.toFixed(0)}`;
-};
-
 // Create a generic function for logarithmic slider conversions
 const createLogSliderHandlers = (config: LogSliderConfig) => {
   const {
@@ -84,32 +69,19 @@ const economicHandlers = createLogSliderHandlers({
 
 // Replace the old conversion functions with the new handlers
 const sliderToPopulation = populationHandlers.sliderToValue;
-const populationToSlider = populationHandlers.valueToSlider;
-const sliderToProbability = probabilityHandlers.sliderToValue;
 const probabilityToSlider = probabilityHandlers.valueToSlider;
-const sliderToMortality = mortalityHandlers.sliderToValue;
+const sliderToProbability = probabilityHandlers.sliderToValue;
 const mortalityToSlider = mortalityHandlers.valueToSlider;
+const sliderToMortality = mortalityHandlers.sliderToValue;
 const sliderToEconomic = economicHandlers.sliderToValue;
-const economicToSlider = economicHandlers.valueToSlider;
-
-// Add a linear handler for percentage values (0-100%)
-const percentageToSlider = (value: number) => value * 100;
-const sliderToPercentage = (value: number) => value / 100;
 
 // Add tooltips configuration
 const tooltips = {
-  daysPerSecond: "Controls how fast the simulation runs. Higher values make the simulation run faster.",
-  population: "The total number of people in the simulated population.",
-  economicCostPerDeath: "The estimated economic impact of each death, including healthcare costs and lost productivity.",
-  contactsPerDay: "Average number of close contacts each person has per day that could lead to disease transmission.",
   transmissionProbability: "The probability that an infectious contact results in disease transmission.",
   latentPeriod: "The time between exposure and becoming infectious (incubation period). During this period, individuals are infected but not yet contagious.",
   infectiousPeriod: "How long an infected person remains contagious.",
   mortalityRate: "The percentage of infected individuals who die from the disease (Infection Fatality Rate).",
   useDates: "Toggle between showing days since start or actual calendar dates",
-  enableWinLose: "Enable win/lose conditions for a more game-like experience",
-  maxDeathPercentage: "Maximum percentage of population that can die before losing",
-  maxEconomicCost: "Maximum economic cost before losing",
 };
 
 export default function ConfigPanel({ config, onConfigChange, disabled }: ConfigPanelProps) {
@@ -148,11 +120,6 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
           ...config,
           maxEconomicCost: sliderToEconomic(numValue)
         });
-      } else if (field === 'maxDeathPercentage') {
-        onConfigChange({
-          ...config,
-          maxDeathPercentage: sliderToPercentage(numValue)
-        });
       } else {
         onConfigChange({
           ...config,
@@ -170,7 +137,7 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
       >
         <div className="flex items-center space-x-2">
           <Settings className="w-6 h-6 text-purple-600" />
-          <h2 className="text-xl font-bold">Settings</h2>
+          <h2 className="text-xl font-bold">Disease Parameters</h2>
         </div>
         {isExpanded ? (
           <ChevronUp className="w-5 h-5 text-gray-500" />
@@ -181,153 +148,8 @@ export default function ConfigPanel({ config, onConfigChange, disabled }: Config
       
       {isExpanded && (
         <div className="space-y-8">
-          {/* Game Settings */}
-          <div className="border-b pb-4">
-            <h3 className="text-lg font-semibold mb-4">Game Settings</h3>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="enableWinLose"
-                  checked={config.enableWinLose}
-                  onChange={(e) => handleChange('enableWinLose', e.target.checked)}
-                  disabled={disabled}
-                  className="h-4 w-4 text-purple-600"
-                />
-                <label htmlFor="enableWinLose" className="text-sm font-medium text-gray-700 flex items-center">
-                  <Tooltip text={tooltips.enableWinLose} />
-                  Enable Win/Lose Conditions
-                </label>
-              </div>
-
-              {config.enableWinLose && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 flex items-center">
-                      <Tooltip text={tooltips.maxDeathPercentage} />
-                      Max Death Percentage
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="1"
-                      value={percentageToSlider(config.maxDeathPercentage)}
-                      onChange={(e) => handleChange('maxDeathPercentage', e.target.value)}
-                      disabled={disabled}
-                      className="w-full mt-1"
-                    />
-                    <div className="text-sm text-gray-600 mt-1">
-                      {(config.maxDeathPercentage * 100).toFixed(1)}% of population
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 flex items-center">
-                      <Tooltip text={tooltips.maxEconomicCost} />
-                      Max Economic Cost
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="1"
-                      value={economicToSlider(config.maxEconomicCost)}
-                      onChange={(e) => handleChange('maxEconomicCost', e.target.value)}
-                      disabled={disabled}
-                      className="w-full mt-1"
-                    />
-                    <div className="text-sm text-gray-600 mt-1">
-                      {formatMoney(config.maxEconomicCost)}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Simulation Settings */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700 flex items-center">
-                <Tooltip text={tooltips.daysPerSecond} />
-                Simulation speed
-              </label>
-              <input
-                type="range"
-                min="1"
-                max="30"
-                step="1"
-                value={config.daysPerSecond}
-                onChange={(e) => handleChange('daysPerSecond', e.target.value)}
-                disabled={disabled}
-                className="w-full mt-1"
-              />
-              <div className="text-sm text-gray-600 mt-1">
-                {config.daysPerSecond} days/second
-              </div>
-            </div>
-            
-            <div>
-              <label className="text-sm font-medium text-gray-700 flex items-center">
-                <Tooltip text={tooltips.population} />
-                Population
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                value={populationToSlider(config.population)}
-                onChange={(e) => handleChange('population', e.target.value)}
-                disabled={disabled}
-                className="w-full mt-1"
-              />
-              <div className="text-sm text-gray-600 mt-1">
-                {formatNumber(config.population)}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700 flex items-center">
-                <Tooltip text={tooltips.economicCostPerDeath} />
-                Economic cost per Death
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="20000000"
-                step="100000"
-                value={config.economicCostPerDeath}
-                onChange={(e) => handleChange('economicCostPerDeath', e.target.value)}
-                disabled={disabled}
-                className="w-full mt-1"
-              />
-              <div className="text-sm text-gray-600 mt-1">
-                Current: {formatMoney(config.economicCostPerDeath)}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700 flex items-center">
-                <Tooltip text={tooltips.contactsPerDay} />
-                Daily Contacts (k)
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="50"
-                step="1"
-                value={config.contactsPerDay}
-                onChange={(e) => handleChange('contactsPerDay', e.target.value)}
-                disabled={disabled}
-                className="w-full mt-1"
-              />
-              <div className="text-sm text-gray-600 mt-1">
-                k = {config.contactsPerDay} contacts per day
-              </div>
-            </div>
-
             <div>
               <label className="text-sm font-medium text-gray-700 flex items-center">
                 <Tooltip text={tooltips.transmissionProbability} />

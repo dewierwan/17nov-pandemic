@@ -8,6 +8,8 @@ import EconomicBreakdown from '../features/economics/components/EconomicBreakdow
 import { useSimulation } from '../features/simulation/hooks/useSimulation';
 import { Pathogen } from '../types';
 import GameOver from '../shared/components/GameOver';
+import SimulationSettings from '../shared/components/SimulationSettings';
+import LocalContext from '../shared/components/LocalContext';
 
 function App() {
   const { 
@@ -89,11 +91,20 @@ function App() {
       <main className="max-w-7xl mx-auto py-6 space-y-6 px-4">
         {!state.hasStarted && (
           <>
+            <SimulationSettings
+              config={config}
+              onConfigChange={updateConfig}
+              disabled={state.isRunning}
+            />
+            <LocalContext
+              config={config}
+              onConfigChange={updateConfig}
+              disabled={state.isRunning}
+            />
             <PathogenSelector
               onSelectPathogen={handlePathogenSelect}
               disabled={state.isRunning}
             />
-            
             <ConfigPanel
               config={config}
               onConfigChange={updateConfig}
